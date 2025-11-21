@@ -295,6 +295,7 @@ $result = $conn->query("SELECT user_id, full_name, email, role, status FROM user
         <a href="manage_residents.php"><i class="fa-solid fa-user-group"></i> Residents</a>
         <a href="assign_caregiver.php"><i class="fa-solid fa-link"></i> Assign Caregivers</a>
         <a href="manage_services.php"><i class="fa-solid fa-spa"></i> Manage Services</a>
+        <a href="messages.php"><i class="fa-solid fa-envelope"></i> Messages</a>
         <a href="view_alerts.php"><i class="fa-solid fa-bell"></i> Alerts</a>
     </div>
     
