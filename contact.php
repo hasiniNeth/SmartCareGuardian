@@ -543,54 +543,36 @@
                         <h3 class="section-title text-center display-5 mb-4">Send Us a Message</h3>
                         <p class="text-center mb-4">We'll get back to you within 24 hours</p>
                         
-                        <form id="contactForm">
+                        <form id="contactForm" action="send_message.php" method="POST">
                             <div class="row">
                                 <div class="col-md-6">
-                                    <label for="firstName" class="form-label">First Name *</label>
-                                    <input type="text" class="form-control" id="firstName" required>
-                                </div>
-                                <div class="col-md-6">
-                                    <label for="lastName" class="form-label">Last Name *</label>
-                                    <input type="text" class="form-control" id="lastName" required>
+                                    <label for="fullname" class="form-label">Full Name *</label>
+                                    <input type="text" class="form-control" name="fullname" id="fullname" required>
                                 </div>
                             </div>
                             
                             <div class="row">
                                 <div class="col-md-6">
                                     <label for="email" class="form-label">Email Address *</label>
-                                    <input type="email" class="form-control" id="email" required>
+                                    <input type="email" class="form-control" name="email" id="email" required>
                                 </div>
                                 <div class="col-md-6">
                                     <label for="phone" class="form-label">Phone Number *</label>
-                                    <input type="tel" class="form-control" id="phone" required>
+                                    <input type="tel" class="form-control" name="phone" id="phone" required>
                                 </div>
-                            </div>
-                            
-                            <div class="row">
-                                <div class="col-12">
-                                    <label for="service" class="form-label">Service Interested In</label>
-                                    <select class="form-control" id="service">
-                                        <option value="">Select a service</option>
-                                        <option value="ayurvedic">Ayurvedic Treatments</option>
-                                        <option value="elder-care">Elder Care Services</option>
-                                        <option value="residential">Residential Care</option>
-                                        <option value="consultation">Medical Consultation</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                </div>
-                            </div>
+                            </div>  
                             
                             <div class="row">
                                 <div class="col-12">
                                     <label for="message" class="form-label">Message *</label>
-                                    <textarea class="form-control" id="message" rows="5" placeholder="Tell us about your requirements..." required></textarea>
+                                    <textarea class="form-control" name="message" id="message" rows="5" placeholder="Tell us about your requirements..." required></textarea>
                                 </div>
                             </div>
                             
                             <div class="row">
                                 <div class="col-12">
                                     <button type="submit" class="btn btn-primary btn-lg w-100">
-                                        <i class="fas fa-paper-plane me-2"></i>Send Message
+                                        <i class="fas fa-paper-plane me-2"></i><span>Send Message</span>
                                     </button>
                                 </div>
                             </div>
