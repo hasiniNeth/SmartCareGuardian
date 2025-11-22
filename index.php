@@ -1,3 +1,11 @@
+<?php
+session_start();
+include 'db_connection.php';
+
+// Fetch services from database
+$services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 3");
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -72,7 +80,7 @@
                                 <i class="fas fa-shield-heart"></i>
                             </div>
                             <h4 class="brand-font">SmartCare Guardian</h4>
-                            <p class="mb-4">
+                            <p class="text-muted">
                                 AI-powered elderly care with predictive health monitoring and personalized wellness plans.
                             </p>
                             <a href="login.php" class="btn btn-primary w-100">
@@ -138,26 +146,42 @@
     <section id="services" class="py-5 section-bg-alt">
         <div class="container">
             <h2 class="section-title text-center display-4 mb-5" data-aos="fade-up">Our Specialized Services</h2>
+            
             <div class="services-grid">
-                <div class="service-item" data-aos="flip-left">
-                    <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" 
-                         alt="Ayurvedic Treatment" class="service-image">
-                    <h5 class="brand-font">Traditional Ayurvedic Treatments</h5>
-                    <p>Panchakarma therapies, herbal medicine, and personalized wellness programs based on ancient Ayurvedic principles for holistic healing.</p>
-                </div>
-                <div class="service-item" data-aos="flip-up">
-                    <img src="https://images.unsplash.com/photo-1519494080410-f9aa76cb4283?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" 
-                         alt="Elder Care" class="service-image">
-                    <h5 class="brand-font">Comprehensive Elder Care</h5>
-                    <p>24/7 residential care with medical monitoring, personalized attention, and SmartCare Guardian technology for proactive health management.</p>
-                </div>
-                <div class="service-item" data-aos="flip-right">
-                    <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" 
-                         alt="Wellness Program" class="service-image">
-                    <h5 class="brand-font">Senior Wellness Programs</h5>
-                    <p>Yoga, meditation, nutritional guidance, and therapeutic activities specifically designed for elderly residents' needs and capabilities.</p>
-                </div>
+                <?php if ($services->num_rows > 0): ?>
+                    <?php while($row = $services->fetch_assoc()): ?>
+                        <div class="service-item" data-aos="flip-up">
+                            <img src="<?= htmlspecialchars($row['image_path']) ?>" 
+                                 alt="<?= htmlspecialchars($row['title']) ?>" 
+                                 class="service-image"
+                                 onerror="this.src='https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80'">
+                            <h5 class="brand-font"><?= htmlspecialchars($row['title']) ?></h5>
+                            <p><?= htmlspecialchars($row['description']) ?></p>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else: ?>
+                    <!-- Fallback services if no services in database -->
+                    <div class="service-item" data-aos="flip-left">
+                        <img src="https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" 
+                             alt="Ayurvedic Treatment" class="service-image">
+                        <h5 class="brand-font">Traditional Ayurvedic Treatments</h5>
+                        <p>Panchakarma therapies, herbal medicine, and personalized wellness programs based on ancient Ayurvedic principles for holistic healing.</p>
+                    </div>
+                    <div class="service-item" data-aos="flip-up">
+                        <img src="https://images.unsplash.com/photo-1519494080410-f9aa76cb4283?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" 
+                             alt="Elder Care" class="service-image">
+                        <h5 class="brand-font">Comprehensive Elder Care</h5>
+                        <p>24/7 residential care with medical monitoring, personalized attention, and SmartCare Guardian technology for proactive health management.</p>
+                    </div>
+                    <div class="service-item" data-aos="flip-right">
+                        <img src="https://images.unsplash.com/photo-1506126613408-eca07ce68773?ixlib=rb-4.0.3&auto=format&fit=crop&w=300&q=80" 
+                             alt="Wellness Program" class="service-image">
+                        <h5 class="brand-font">Senior Wellness Programs</h5>
+                        <p>Yoga, meditation, nutritional guidance, and therapeutic activities specifically designed for elderly residents' needs and capabilities.</p>
+                    </div>
+                <?php endif; ?>
             </div>
+
             <div class="text-center mt-5" data-aos="zoom-in">
                 <a href="services.php" class="btn btn-primary btn-lg">
                     <i class="fas fa-plus me-2"></i><span>Discover All Services</span>
