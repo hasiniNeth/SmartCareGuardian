@@ -1,3 +1,28 @@
+<?php
+session_start();
+include 'db_connection.php';
+
+// Fetch services from database
+$services = $conn->query("
+    SELECT s.*, c.category_name 
+    FROM services s
+    JOIN service_categories c ON s.category_id = c.category_id
+    ORDER BY c.category_name, s.title
+");
+
+// Group services by category
+$services_by_category = [];
+if ($services && $services->num_rows > 0) {
+    while($service = $services->fetch_assoc()) {
+        $category = $service['category_name'];
+        if (!isset($services_by_category[$category])) {
+            $services_by_category[$category] = [];
+        }
+        $services_by_category[$category][] = $service;
+    }
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -133,7 +158,7 @@
         .service-card {
             background: white;
             border-radius: 20px;
-            padding: 40px 30px;
+            padding: 10;
             text-align: center;
             box-shadow: 0 10px 30px rgba(0,0,0,0.08);
             transition: all 0.4s ease;
@@ -148,10 +173,21 @@
             box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
         
+        .service-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-bottom: 3px solid var(--forest-mist);
+        }
+        
+        .service-content {
+            padding: 30px 25px;
+        }
+        
         .service-icon {
-            font-size: 3.5rem;
+            font-size: 2.5rem;
             color: var(--sage-green);
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             transition: all 0.4s ease;
         }
         
@@ -162,13 +198,15 @@
         
         .service-features {
             list-style: none;
-            padding: 0;
+            padding: 10;
             margin: 20px 0;
+            text-align: left;
         }
         
         .service-features li {
             padding: 8px 0;
             border-bottom: 1px solid var(--forest-mist);
+            font-size: 0.9rem;
         }
         
         .service-features li:last-child {
@@ -210,50 +248,6 @@
             font-size: 2.5rem;
             color: var(--sage-green);
             margin-bottom: 20px;
-        }
-        
-        /* Pricing Section */
-        .pricing-card {
-            background: white;
-            border-radius: 20px;
-            padding: 40px 30px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-            transition: all 0.3s ease;
-            position: relative;
-            border: 2px solid var(--forest-mist);
-        }
-        
-        .pricing-card.featured {
-            border-color: var(--sage-green);
-            transform: scale(1.05);
-            box-shadow: 0 15px 35px rgba(141, 182, 154, 0.2);
-        }
-        
-        .pricing-card.featured::before {
-            content: 'Most Popular';
-            position: absolute;
-            top: -15px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: var(--sage-green);
-            color: white;
-            padding: 5px 20px;
-            border-radius: 25px;
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-        
-        .price {
-            font-size: 3rem;
-            font-weight: bold;
-            color: var(--deep-emerald);
-            margin: 20px 0;
-        }
-        
-        .price-period {
-            color: var(--dusty-teal);
-            font-size: 1rem;
         }
         
         /* Process Section */
@@ -320,6 +314,46 @@
             width: 60px;
             height: 3px;
             background: var(--sage-green);
+        }
+
+        /* Service Badges */
+        .service-badge {
+            background: var(--forest-mist);
+            color: var(--deep-emerald);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            display: inline-block;
+        }
+
+        /* No Services Message */
+        .no-services {
+            text-align: center;
+            padding: 60px 20px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+
+        .no-services-icon {
+            font-size: 4rem;
+            color: var(--forest-mist);
+            margin-bottom: 20px;
+        }
+
+        /* Default Service Images */
+        .default-service-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 4rem;
         }
 
         /* Footer */
@@ -391,11 +425,6 @@
                 font-size: 2rem;
             }
             
-            .pricing-card.featured {
-                transform: scale(1);
-                margin: 20px 0;
-            }
-            
             .footer-links a {
                 display: block;
                 margin: 8px 0;
@@ -404,6 +433,15 @@
             .social-icon {
                 margin: 0 10px;
             }
+            
+            .service-image {
+                height: 200px;
+            }
+            
+            .default-service-image {
+                height: 200px;
+                font-size: 3rem;
+            }
         }
     </style>
 </head>
@@ -411,7 +449,7 @@
     <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-light fixed-top">
         <div class="container">
-            <a class="navbar-brand" href="index.html">
+            <a class="navbar-brand" href="index.php">
                 <i class="fas fa-leaf me-2"></i>
                 SUBODHA AYURVEDA
             </a>
@@ -451,264 +489,222 @@
         </div>
     </section>
 
-    <!-- Ayurvedic Treatments Section -->
-    <section class="py-5 section-bg">
-        <div class="container">
-            <div class="service-category">
-                <h2 class="section-title text-center display-4 mb-5">Traditional Ayurvedic Treatments</h2>
-                <div class="row">
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-spa"></i>
-                            </div>
-                            <h4 class="brand-font">Panchakarma Therapy</h4>
-                            <p>Complete detoxification and rejuvenation therapy using five purification procedures for holistic healing.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Vamana (Therapeutic Emesis)</li>
-                                <li><i class="fas fa-check"></i>Virechana (Purgation Therapy)</li>
-                                <li><i class="fas fa-check"></i>Basti (Medicated Enema)</li>
-                                <li><i class="fas fa-check"></i>Nasya (Nasal Administration)</li>
-                                <li><i class="fas fa-check"></i>Raktamokshana (Bloodletting)</li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="badge bg-primary">7-21 Days Program</span>
-                                <span class="badge bg-success">Detoxification</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-leaf"></i>
-                            </div>
-                            <h4 class="brand-font">Herbal Medicine</h4>
-                            <p>Customized herbal formulations and natural remedies tailored to individual constitution and health conditions.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Personalized Herbal Formulations</li>
-                                <li><i class="fas fa-check"></i>Traditional Sri Lankan Herbs</li>
-                                <li><i class="fas fa-check"></i>Seasonal Wellness Programs</li>
-                                <li><i class="fas fa-check"></i>Chronic Disease Management</li>
-                                <li><i class="fas fa-check"></i>Preventive Healthcare</li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="badge bg-primary">Customized</span>
-                                <span class="badge bg-success">Natural Healing</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-hand-holding-heart"></i>
-                            </div>
-                            <h4 class="brand-font">Ayurvedic Massage</h4>
-                            <p>Therapeutic massage techniques using medicated oils to improve circulation and promote healing.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Abhyanga (Full Body Massage)</li>
-                                <li><i class="fas fa-check"></i>Shirodhara (Oil Pouring Therapy)</li>
-                                <li><i class="fas fa-check"></i>Pizhichil (Oil Bath Therapy)</li>
-                                <li><i class="fas fa-check"></i>Marma Point Therapy</li>
-                                <li><i class="fas fa-check"></i>Sports Injury Rehabilitation</li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="badge bg-primary">Therapeutic</span>
-                                <span class="badge bg-success">Relaxation</span>
-                            </div>
+    <!-- Dynamic Services Section -->
+    <?php if (!empty($services_by_category)): ?>
+        <?php foreach($services_by_category as $category_name => $services): ?>
+            <section class="py-5 <?php echo ($category_name == 'Elder Care') ? 'section-bg-alt' : 'section-bg'; ?>">
+                <div class="container">
+                    <div class="service-category">
+                        <h2 class="section-title text-center display-4 mb-5"><?php echo htmlspecialchars($category_name); ?></h2>
+                        <div class="row">
+                            <?php foreach($services as $service): ?>
+                                <div class="col-lg-4 mb-4">
+                                    <div class="service-card">
+                                        <!-- Service Image -->
+                                        <?php if (!empty($service['image_path'])): ?>
+                                            <img src="<?php echo htmlspecialchars($service['image_path']); ?>" 
+                                                 alt="<?php echo htmlspecialchars($service['title']); ?>" 
+                                                 class="service-image">
+                                        <?php else: ?>
+                                            <!-- Default image with icon -->
+                                            <div class="default-service-image">
+                                                <?php 
+                                                // Determine icon based on category
+                                                $icon = 'fas fa-heart';
+                                                if (stripos($category_name, 'ayurved') !== false) {
+                                                    $icon = 'fas fa-spa';
+                                                } elseif (stripos($category_name, 'elder') !== false) {
+                                                    $icon = 'fas fa-home';
+                                                } elseif (stripos($category_name, 'wellness') !== false) {
+                                                    $icon = 'fas fa-heartbeat';
+                                                }
+                                                ?>
+                                                <i class="<?php echo $icon; ?>"></i>
+                                            </div>
+                                        <?php endif; ?>
+                                        
+                                        <div class="service-content">
+                                            <h4 class="brand-font"><?php echo htmlspecialchars($service['title']); ?></h4>
+                                            <p class="text-muted"><?php echo htmlspecialchars($service['description']); ?></p>
+                                            
+                                            <!-- Service badges for duration and tags if available -->
+                                            <div class="mt-3">
+                                                <?php if (!empty($service['duration'])): ?>
+                                                    <span class="service-badge">
+                                                        <i class="fas fa-clock me-1"></i><?php echo htmlspecialchars($service['duration']); ?>
+                                                    </span>
+                                                <?php endif; ?>
+                                                
+                                                <?php if (!empty($service['tags'])): ?>
+                                                    <?php 
+                                                    $tags = explode(',', $service['tags']);
+                                                    foreach(array_slice($tags, 0, 2) as $tag): 
+                                                        if (!empty(trim($tag))):
+                                                    ?>
+                                                        <span class="service-badge"><?php echo htmlspecialchars(trim($tag)); ?></span>
+                                                    <?php 
+                                                        endif;
+                                                    endforeach; 
+                                                    ?>
+                                                <?php endif; ?>
+                                            </div>
+                                            
+                                            <?php if (!empty($service['price'])): ?>
+                                                <div class="mt-3">
+                                                    <h5 class="text-success fw-bold">LKR <?php echo number_format($service['price'], 2); ?></h5>
+                                                </div>
+                                            <?php endif; ?>
+                                            
+                                            <!-- View Details Button -->
+                                            <div class="mt-4">
+                                                <button class="btn btn-primary" 
+                                                        data-bs-toggle="modal" 
+                                                        data-bs-target="#serviceModal<?php echo $service['service_id']; ?>">
+                                                    <i class="fas fa-info-circle me-2"></i><span>View Details</span>
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Service Modal -->
+                                <div class="modal fade" id="serviceModal<?php echo $service['service_id']; ?>" tabindex="-1">
+                                    <div class="modal-dialog modal-lg">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title brand-font"><?php echo htmlspecialchars($service['title']); ?></h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <div class="row">
+                                                    <?php if (!empty($service['image_path'])): ?>
+                                                        <div class="col-md-6">
+                                                            <img src="<?php echo htmlspecialchars($service['image_path']); ?>" 
+                                                                 alt="<?php echo htmlspecialchars($service['title']); ?>" 
+                                                                 class="img-fluid rounded">
+                                                        </div>
+                                                    <?php endif; ?>
+                                                    <div class="<?php echo !empty($service['image_path']) ? 'col-md-6' : 'col-12'; ?>">
+                                                        <p class="lead"><?php echo htmlspecialchars($service['description']); ?></p>
+                                                        
+                                                        <?php if (!empty($service['features'])): ?>
+                                                            <h6 class="brand-font">Key Features:</h6>
+                                                            <ul class="service-features">
+                                                                <?php 
+                                                                $features = explode(',', $service['features']);
+                                                                foreach($features as $feature): 
+                                                                    if (!empty(trim($feature))):
+                                                                ?>
+                                                                    <li><i class="fas fa-check"></i><?php echo htmlspecialchars(trim($feature)); ?></li>
+                                                                <?php 
+                                                                    endif;
+                                                                endforeach; 
+                                                                ?>
+                                                            </ul>
+                                                        <?php endif; ?>
+                                                        
+                                                        <div class="mt-3">
+                                                            <?php if (!empty($service['duration'])): ?>
+                                                                <p><strong>Duration:</strong> <?php echo htmlspecialchars($service['duration']); ?></p>
+                                                            <?php endif; ?>
+                                                            
+                                                            <?php if (!empty($service['price'])): ?>
+                                                                <p><strong>Price:</strong> LKR <?php echo number_format($service['price'], 2); ?></p>
+                                                            <?php endif; ?>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Elder Care Services Section -->
-    <section class="py-5 section-bg-alt">
-        <div class="container">
-            <div class="service-category">
-                <h2 class="section-title text-center display-4 mb-5">Comprehensive Elder Care</h2>
-                <div class="row">
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-home"></i>
-                            </div>
-                            <h4 class="brand-font">Residential Care</h4>
-                            <p>24/7 comfortable residential facilities with personalized care and medical supervision.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Private & Shared Accommodation</li>
-                                <li><i class="fas fa-check"></i>24/7 Nursing Care</li>
-                                <li><i class="fas fa-check"></i>Nutritious Ayurvedic Meals</li>
-                                <li><i class="fas fa-check"></i>Regular Health Monitoring</li>
-                                <li><i class="fas fa-check"></i>Emergency Response System</li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="badge bg-primary">24/7 Care</span>
-                                <span class="badge bg-success">Residential</span>
-                            </div>
-                        </div>
+            </section>
+        <?php endforeach; ?>
+    <?php else: ?>
+        <!-- No Services Available -->
+        <section class="py-5 section-bg">
+            <div class="container">
+                <div class="no-services">
+                    <div class="no-services-icon">
+                        <i class="fas fa-spa"></i>
                     </div>
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-user-md"></i>
-                            </div>
-                            <h4 class="brand-font">Medical Care</h4>
-                            <p>Comprehensive medical services specifically designed for elderly health needs.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Regular Health Check-ups</li>
-                                <li><i class="fas fa-check"></i>Chronic Disease Management</li>
-                                <li><i class="fas fa-check"></i>Medication Management</li>
-                                <li><i class="fas fa-check"></i>Mobility Assistance</li>
-                                <li><i class="fas fa-check"></i>Specialist Consultations</li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="badge bg-primary">Medical</span>
-                                <span class="badge bg-success">Professional</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-heart"></i>
-                            </div>
-                            <h4 class="brand-font">Daily Living Support</h4>
-                            <p>Compassionate assistance with daily activities to maintain dignity and independence.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Personal Hygiene Assistance</li>
-                                <li><i class="fas fa-check"></i>Mobility Support</li>
-                                <li><i class="fas fa-check"></i>Meal Preparation & Feeding</li>
-                                <li><i class="fas fa-check"></i>Housekeeping Services</li>
-                                <li><i class="fas fa-check"></i>Companionship & Social Care</li>
-                            </ul>
-                            <div class="mt-4">
-                                <span class="badge bg-primary">Daily Support</span>
-                                <span class="badge bg-success">Compassionate</span>
-                            </div>
-                        </div>
-                    </div>
+                    <h3 class="text-muted">Services Coming Soon</h3>
+                    <p class="lead text-muted">We are currently updating our service offerings. Please check back soon or contact us for more information.</p>
+                    <a href="contact.php" class="btn btn-primary mt-3">
+                        <i class="fas fa-phone me-2"></i>Contact Us
+                    </a>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    <?php endif; ?>
 
+    <!-- Rest of the page remains the same -->
     <!-- SmartCare Guardian Section -->
-    <section class="py-5 smartcare-section">
-        <div class="container">
-            <h2 class="section-title text-center display-4 mb-5">SmartCare Guardian Technology</h2>
-            <div class="row align-items-center">
-                <div class="col-lg-6">
-                    <h3 class="display-5 fw-bold mb-4">AI-Powered Elderly Care Monitoring</h3>
-                    <p class="lead mb-4">
-                        Our innovative SmartCare Guardian system uses artificial intelligence to provide proactive 
-                        health monitoring and personalized care recommendations for our elderly residents.
-                    </p>
-                    <div class="feature-grid">
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-brain"></i>
-                            </div>
-                            <h5 class="brand-font">Predictive Analytics</h5>
-                            <p>AI algorithms predict potential health risks before they become critical</p>
+<section class="py-5 smartcare-section">
+    <div class="container">
+        <h2 class="section-title text-center display-4 mb-5">SmartCare Guardian Technology</h2>
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h3 class="display-5 fw-bold mb-4">AI-Powered Elderly Care Monitoring</h3>
+                <p class="lead mb-4">
+                    Our innovative SmartCare Guardian system uses artificial intelligence to provide proactive 
+                    health monitoring and personalized care recommendations for our elderly residents.
+                </p>
+                <div class="feature-grid">
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-brain"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-bell"></i>
-                            </div>
-                            <h5 class="brand-font">Real-time Alerts</h5>
-                            <p>Instant notifications for caregivers about health anomalies</p>
+                        <h5 class="brand-font">Predictive Analytics</h5>
+                        <p>AI algorithms predict potential health risks before they become critical</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-bell"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-chart-line"></i>
-                            </div>
-                            <h5 class="brand-font">Health Trends</h5>
-                            <p>Comprehensive tracking of vital signs and health patterns</p>
+                        <h5 class="brand-font">Real-time Alerts</h5>
+                        <p>Instant notifications for caregivers about health anomalies</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-chart-line"></i>
                         </div>
-                        <div class="feature-item">
-                            <div class="feature-icon">
-                                <i class="fas fa-user-cog"></i>
-                            </div>
-                            <h5 class="brand-font">Personalized Care</h5>
-                            <p>Customized care plans based on individual health data</p>
+                        <h5 class="brand-font">Health Trends</h5>
+                        <p>Comprehensive tracking of vital signs and health patterns</p>
+                    </div>
+                    <div class="feature-item">
+                        <div class="feature-icon">
+                            <i class="fas fa-user-cog"></i>
                         </div>
+                        <h5 class="brand-font">Personalized Care</h5>
+                        <p>Customized care plans based on individual health data</p>
                     </div>
                 </div>
-                <div class="col-lg-6 text-center">
-                    <div class="service-card">
+            </div>
+            <div class="col-lg-6 text-center">
+                <div class="service-card" style="margin: 0 auto; max-width: 400px;">
+                    <div class="service-content">
                         <div class="service-icon">
                             <i class="fas fa-shield-heart"></i>
                         </div>
                         <h4 class="brand-font">SmartCare Guardian</h4>
                         <p class="mb-4">Advanced AI system for proactive elderly health management</p>
                         <a href="login.php" class="btn btn-primary btn-lg">
-                            <i class="fas fa-sign-in-alt me-2"></i>Access System
+                            <i class="fas fa-sign-in-alt me-2"></i><span>Access System</span>
                         </a>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
-
-    <!-- Wellness Programs Section -->
-    <section class="py-5 section-bg">
-        <div class="container">
-            <div class="service-category">
-                <h2 class="section-title text-center display-4 mb-5">Wellness & Rehabilitation Programs</h2>
-                <div class="row">
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-spa"></i>
-                            </div>
-                            <h4 class="brand-font">Senior Yoga & Meditation</h4>
-                            <p>Gentle yoga and meditation sessions specifically designed for elderly practitioners.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Chair Yoga Sessions</li>
-                                <li><i class="fas fa-check"></i>Breathing Exercises</li>
-                                <li><i class="fas fa-check"></i>Guided Meditation</li>
-                                <li><i class="fas fa-check"></i>Stress Management</li>
-                                <li><i class="fas fa-check"></i>Improved Flexibility</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-utensils"></i>
-                            </div>
-                            <h4 class="brand-font">Ayurvedic Nutrition</h4>
-                            <p>Personalized dietary plans based on Ayurvedic principles for optimal health.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Personalized Diet Plans</li>
-                                <li><i class="fas fa-check"></i>Seasonal Food Guidance</li>
-                                <li><i class="fas fa-check"></i>Herbal Supplements</li>
-                                <li><i class="fas fa-check"></i>Digestive Health</li>
-                                <li><i class="fas fa-check"></i>Weight Management</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-lg-4 mb-4">
-                        <div class="service-card">
-                            <div class="service-icon">
-                                <i class="fas fa-hands-helping"></i>
-                            </div>
-                            <h4 class="brand-font">Physiotherapy</h4>
-                            <p>Specialized physiotherapy services for mobility improvement and pain management.</p>
-                            <ul class="service-features">
-                                <li><i class="fas fa-check"></i>Mobility Enhancement</li>
-                                <li><i class="fas fa-check"></i>Pain Management</li>
-                                <li><i class="fas fa-check"></i>Balance Training</li>
-                                <li><i class="fas fa-check"></i>Post-operative Care</li>
-                                <li><i class="fas fa-check"></i>Fall Prevention</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
+    </div>
+</section>
 
     <!-- Service Process Section -->
     <section class="py-5 section-bg-alt">
