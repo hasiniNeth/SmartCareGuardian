@@ -18,8 +18,48 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// Fetch all users
-$result = $conn->query("SELECT user_id, full_name, email, role, status FROM users ORDER BY role ASC, full_name ASC");
+// Get search and filter parameters
+$search = isset($_GET['search']) ? $_GET['search'] : '';
+$role_filter = isset($_GET['role']) ? $_GET['role'] : '';
+
+// Build query with filters
+$query = "SELECT user_id, full_name, email, role, status FROM users WHERE 1=1";
+$params = [];
+$types = "";
+
+if (!empty($search)) {
+    $query .= " AND (full_name LIKE ? OR email LIKE ?)";
+    $search_term = "%" . $search . "%";
+    $params[] = $search_term;
+    $params[] = $search_term;
+    $types .= "ss";
+}
+
+if (!empty($role_filter) && $role_filter !== 'all') {
+    $query .= " AND role = ?";
+    $params[] = $role_filter;
+    $types .= "s";
+}
+
+$query .= " ORDER BY role ASC, full_name ASC";
+
+// Prepare and execute query
+$stmt = $conn->prepare($query);
+
+if (!empty($params)) {
+    $stmt->bind_param($types, ...$params);
+}
+
+$stmt->execute();
+$result = $stmt->get_result();
+
+// Get count of users by role for filter display
+$role_counts = [];
+$count_query = $conn->query("SELECT role, COUNT(*) as count FROM users GROUP BY role");
+while ($row = $count_query->fetch_assoc()) {
+    $role_counts[$row['role']] = $row['count'];
+}
+$total_users = array_sum($role_counts);
 ?>
 
 <!DOCTYPE html>
@@ -170,6 +210,111 @@ $result = $conn->query("SELECT user_id, full_name, email, role, status FROM user
             box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
         }
 
+        /* Filter Section */
+        .filter-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin-bottom: 25px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .filter-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            border: 2px solid var(--forest-mist);
+            border-radius: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        
+        .search-input:focus {
+            border-color: var(--sage-green);
+            box-shadow: 0 0 0 0.2rem rgba(135, 169, 107, 0.25);
+            outline: none;
+        }
+        
+        .search-btn {
+            position: absolute;
+            right: 5px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
+            border: none;
+            border-radius: 8px;
+            color: white;
+            padding: 8px 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .search-btn:hover {
+            transform: translateY(-50%) scale(1.05);
+        }
+        
+        .filter-select {
+            padding: 12px 15px;
+            border: 2px solid var(--forest-mist);
+            border-radius: 10px;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--deep-emerald);
+            min-width: 200px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .filter-select:focus {
+            border-color: var(--sage-green);
+            box-shadow: 0 0 0 0.2rem rgba(135, 169, 107, 0.25);
+            outline: none;
+        }
+        
+        .filter-badge {
+            background: var(--light-sage);
+            color: var(--deep-emerald);
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .reset-btn {
+            background: transparent;
+            border: 2px solid var(--dusty-teal);
+            color: var(--dusty-teal);
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .reset-btn:hover {
+            background: var(--dusty-teal);
+            color: white;
+        }
+
         /* Table Styling */
         .table-container {
             background: rgba(255, 255, 255, 0.95);
@@ -265,6 +410,15 @@ $result = $conn->query("SELECT user_id, full_name, email, role, status FROM user
             box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
         }
 
+        /* Results Info */
+        .results-info {
+            color: var(--dusty-teal);
+            font-weight: 600;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-bottom: 2px solid var(--forest-mist);
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .sidebar {
@@ -275,6 +429,15 @@ $result = $conn->query("SELECT user_id, full_name, email, role, status FROM user
             
             .content {
                 margin-left: 0;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .search-box, .filter-select {
+                width: 100%;
+                min-width: unset;
             }
         }
     </style>
@@ -320,6 +483,56 @@ $result = $conn->query("SELECT user_id, full_name, email, role, status FROM user
         </form>
     </div>
 
+    <!-- Filter Section -->
+    <div class="filter-container">
+        <form method="GET" action="" id="filterForm">
+            <div class="filter-row">
+                <div class="search-box">
+                    <input type="text" 
+                           name="search" 
+                           class="search-input" 
+                           placeholder="Search by name or email..."
+                           value="<?php echo htmlspecialchars($search); ?>">
+                    <button type="submit" class="search-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+                
+                <select name="role" class="filter-select" onchange="this.form.submit()">
+                    <option value="all" <?php echo $role_filter === 'all' || empty($role_filter) ? 'selected' : ''; ?>>All Roles</option>
+                    <option value="admin" <?php echo $role_filter === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                    <option value="caregiver" <?php echo $role_filter === 'caregiver' ? 'selected' : ''; ?>>Caregiver</option>
+                    <option value="resident" <?php echo $role_filter === 'resident' ? 'selected' : ''; ?>>Resident</option>
+                </select>
+                
+                <div class="filter-badge">
+                    <i class="fas fa-users"></i>
+                    <?php 
+                    $display_count = $result->num_rows;
+                    echo "Showing {$display_count} of {$total_users} users";
+                    ?>
+                </div>
+                
+                <?php if (!empty($search) || (!empty($role_filter) && $role_filter !== 'all')): ?>
+                <button type="button" class="reset-btn" onclick="resetFilters()">
+                    <i class="fas fa-times me-2"></i>Reset Filters
+                </button>
+                <?php endif; ?>
+            </div>
+        </form>
+    </div>
+
+    <!-- Results Info -->
+    <div class="results-info">
+        <?php if (!empty($search)): ?>
+            <i class="fas fa-search me-2"></i>Search results for: "<strong><?php echo htmlspecialchars($search); ?></strong>"
+        <?php endif; ?>
+        <?php if (!empty($role_filter) && $role_filter !== 'all'): ?>
+            <?php if (!empty($search)): ?> • <?php endif; ?>
+            <i class="fas fa-filter me-2"></i>Filter: <strong><?php echo ucfirst($role_filter); ?></strong>
+        <?php endif; ?>
+    </div>
+
     <div class="table-container">
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -334,56 +547,109 @@ $result = $conn->query("SELECT user_id, full_name, email, role, status FROM user
                     </tr>
                 </thead>
                 <tbody>
-                    <?php while ($row = $result->fetch_assoc()): ?>
+                    <?php if ($result->num_rows > 0): ?>
+                        <?php while ($row = $result->fetch_assoc()): ?>
+                            <tr>
+                                <td><strong>#<?php echo $row['user_id']; ?></strong></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                            <i class="fas fa-user text-muted"></i>
+                                        </div>
+                                        <div>
+                                            <strong><?php echo htmlspecialchars($row['full_name']); ?></strong>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><?php echo htmlspecialchars($row['email']); ?></td>
+                                <td>
+                                    <span class="badge bg-secondary text-uppercase">
+                                        <i class="fas fa-<?php echo $row['role'] === 'admin' ? 'crown' : ($row['role'] === 'caregiver' ? 'hands-helping' : 'user'); ?> me-1"></i>
+                                        <?php echo $row['role']; ?>
+                                    </span>
+                                </td>
+                                <td>
+                                    <?php if ($row['status'] === 'active'): ?>
+                                        <span class="badge bg-success">
+                                            <i class="fas fa-check-circle me-1"></i>Active
+                                        </span>
+                                    <?php else: ?>
+                                        <span class="badge bg-danger">
+                                            <i class="fas fa-times-circle me-1"></i>Inactive
+                                        </span>
+                                    <?php endif; ?>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center">
+                                        <a href="edit_user.php?id=<?php echo $row['user_id']; ?>" class="btn-edit" title="Edit User">
+                                            <i class="fa-solid fa-pen-to-square"></i>
+                                        </a>
+                                        <a href="manage_users.php?delete=<?php echo $row['user_id']; ?>&search=<?php echo urlencode($search); ?>&role=<?php echo urlencode($role_filter); ?>" 
+                                           onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');" 
+                                           class="btn-delete" title="Delete User">
+                                            <i class="fa-solid fa-trash-can"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        <?php endwhile; ?>
+                    <?php else: ?>
                         <tr>
-                            <td><strong>#<?php echo $row['user_id']; ?></strong></td>
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="bg-light rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                        <i class="fas fa-user text-muted"></i>
-                                    </div>
-                                    <div>
-                                        <strong><?php echo htmlspecialchars($row['full_name']); ?></strong>
-                                    </div>
-                                </div>
-                            </td>
-                            <td><?php echo htmlspecialchars($row['email']); ?></td>
-                            <td>
-                                <span class="badge bg-secondary text-uppercase">
-                                    <i class="fas fa-<?php echo $row['role'] === 'admin' ? 'crown' : ($row['role'] === 'caregiver' ? 'hands-helping' : 'user'); ?> me-1"></i>
-                                    <?php echo $row['role']; ?>
-                                </span>
-                            </td>
-                            <td>
-                                <?php if ($row['status'] === 'active'): ?>
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check-circle me-1"></i>Active
-                                    </span>
-                                <?php else: ?>
-                                    <span class="badge bg-danger">
-                                        <i class="fas fa-times-circle me-1"></i>Inactive
-                                    </span>
+                            <td colspan="6" class="text-center py-4">
+                                <i class="fas fa-search fa-2x text-muted mb-3"></i>
+                                <h5 class="brand-font">No users found</h5>
+                                <p class="text-muted">
+                                    <?php if (!empty($search) || (!empty($role_filter) && $role_filter !== 'all')): ?>
+                                        Try adjusting your search or filter criteria
+                                    <?php else: ?>
+                                        No users are currently registered in the system
+                                    <?php endif; ?>
+                                </p>
+                                <?php if (!empty($search) || (!empty($role_filter) && $role_filter !== 'all')): ?>
+                                    <button class="btn" style="background: var(--sage-green); color: white;" onclick="resetFilters()">
+                                        <i class="fas fa-redo me-2"></i>Reset Filters
+                                    </button>
                                 <?php endif; ?>
                             </td>
-                            <td>
-                                <div class="d-flex justify-content-center">
-                                    <a href="edit_user.php?id=<?php echo $row['user_id']; ?>" class="btn-edit" title="Edit User">
-                                        <i class="fa-solid fa-pen-to-square"></i>
-                                    </a>
-                                    <a href="manage_users.php?delete=<?php echo $row['user_id']; ?>" 
-                                       onclick="return confirm('Are you sure you want to delete this user? This action cannot be undone.');" 
-                                       class="btn-delete" title="Delete User">
-                                        <i class="fa-solid fa-trash-can"></i>
-                                    </a>
-                                </div>
-                            </td>
                         </tr>
-                    <?php endwhile; ?>
+                    <?php endif; ?>
                 </tbody>
             </table>
         </div>
     </div>
 </div>
+
+<script>
+function resetFilters() {
+    window.location.href = 'manage_users.php';
+}
+
+// Auto-submit search when typing stops (with delay)
+let searchTimeout;
+const searchInput = document.querySelector('.search-input');
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            document.getElementById('filterForm').submit();
+        }, 500); // 0.5 second delay
+    });
+}
+
+// Preserve filter state when deleting
+document.querySelectorAll('.btn-delete').forEach(link => {
+    link.addEventListener('click', function(e) {
+        const url = new URL(this.href);
+        const search = '<?php echo urlencode($search); ?>';
+        const role = '<?php echo urlencode($role_filter); ?>';
+        
+        if (search) url.searchParams.set('search', decodeURIComponent(search));
+        if (role && role !== 'all') url.searchParams.set('role', decodeURIComponent(role));
+        
+        this.href = url.toString();
+    });
+});
+</script>
 
 </body>
 </html>
