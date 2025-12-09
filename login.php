@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($user['role'] === 'admin') {
                 header("Location: admin_dashboard.php");
             } elseif ($user['role'] === 'caregiver') {
-                header("Location: caregiver_dashboard.php");
+                header("Location: caregiver/caregiver_dashboard.php");
             } else {
                 header("Location: resident_dashboard.php");
             }
@@ -297,6 +297,47 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 600;
         }
 
+        .btn-homepage-gradient {
+            background: linear-gradient(135deg, var(--forest-mist), var(--dusty-teal));
+            border: none;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-weight: 600;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-homepage-gradient::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--dusty-teal), var(--forest-mist));
+            transition: left 0.4s ease;
+        }
+
+        .btn-homepage-gradient:hover::before {
+            left: 0;
+        }
+
+        .btn-homepage-gradient span {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-homepage-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(141, 182, 154, 0.4);
+        }
+
         /* Responsive adjustments */
         @media (max-height: 700px) {
             .login-wrapper {
@@ -388,6 +429,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="text-center mt-3">
                     <a href="forgot_password.php" class="text-decoration-none" style="color: var(--dusty-teal); font-size: 14px;">
                         <i class="fas fa-key me-1"></i>Forgot Password?
+                    </a>
+                </div>
+
+                <div class="text-center mt-4">
+                    <a href="index.php" class="btn-homepage">
+                        <i class="fas fa-home"></i>Back to Homepage
                     </a>
                 </div>
             </div>
