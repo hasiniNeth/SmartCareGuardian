@@ -31,11 +31,11 @@ if (!$user) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $full_name = $_POST['full_name'];
     $email = $_POST['email'];
-    $role = $_POST['role'];
     $status = $_POST['status'];
+    // Note: Role is NOT included in the update - it remains unchanged
 
-    $update = $conn->prepare("UPDATE users SET full_name=?, email=?, role=?, status=? WHERE user_id=?");
-    $update->bind_param("ssssi", $full_name, $email, $role, $status, $user_id);
+    $update = $conn->prepare("UPDATE users SET full_name=?, email=?, status=? WHERE user_id=?");
+    $update->bind_param("sssi", $full_name, $email, $status, $user_id);
 
     if ($update->execute()) {
         echo "<script>alert('User updated successfully!'); window.location='manage_users.php';</script>";
@@ -281,8 +281,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             border-radius: 20px;
             font-size: 14px;
             font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .role-display {
+            background: linear-gradient(135deg, var(--forest-mist), var(--dusty-teal));
+            color: white;
+            padding: 10px 20px;
+            border-radius: 12px;
             margin-bottom: 20px;
             text-align: center;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        
+        .role-icon {
+            margin-right: 8px;
         }
 
         /* Responsive adjustments */
@@ -332,6 +347,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <div class="user-info-badge">
                     <i class="fas fa-id-card me-2"></i>User ID: <?php echo $user_id; ?>
                 </div>
+                
+                <!-- Display current role (non-editable) -->
+                <div class="role-display">
+                    <i class="fas fa-<?php 
+                        echo $user['role'] === 'admin' ? 'crown' : 
+                              ($user['role'] === 'caregiver' ? 'hands-helping' : 'user'); 
+                    ?> role-icon"></i>
+                    Current Role: <?php echo ucfirst($user['role']); ?>
+                </div>
+                <p class="text-muted text-center mb-4 small">
+                    <i class="fas fa-info-circle me-2"></i>
+                    User role cannot be changed for security reasons. 
+                    To change roles, please contact system administrator.
+                </p>
                 
                 <form method="POST" id="editForm">
                     <div class="mb-4">
