@@ -466,6 +466,7 @@ $caregiver_profile = $caregiver_profile_stmt->get_result()->fetch_assoc();
     
     <div class="sidebar-nav">
         <a href="#" class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="caregiver_profile.php"><i class="fa-solid fa-user-pen"></i> My Profile</a>
         <a href="caregiver_residents.php"><i class="fa-solid fa-user-group"></i> My Residents</a>
         <a href="log_health.php"><i class="fa-solid fa-heart-pulse"></i> Log Health Data</a>
         <a href="manage_routines.php"><i class="fa-solid fa-calendar-check"></i> Manage Routines</a>
@@ -509,12 +510,12 @@ $caregiver_profile = $caregiver_profile_stmt->get_result()->fetch_assoc();
                     <span class="profile-value"><?php echo $caregiver_profile['experience_years'] ?? '0'; ?> years</span>
                 </div>
                 <div class="profile-item">
-                    <span class="profile-label">Phone:</span>
-                    <span class="profile-value"><?php echo $caregiver_profile['phone'] ?? 'Not set'; ?></span>
-                </div>
-                <div class="profile-item">
                     <span class="profile-label">Skills:</span>
                     <span class="profile-value"><?php echo $caregiver_profile['skills'] ?? 'Not specified'; ?></span>
+                </div>
+                <div class="profile-item">
+                    <span class="profile-label">Phone:</span>
+                    <span class="profile-value"><?php echo $caregiver_profile['phone'] ?? 'Not set'; ?></span>
                 </div>
             </div>
         </div>
