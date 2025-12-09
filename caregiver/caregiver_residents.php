@@ -410,6 +410,7 @@ while ($alert = $alerts_result->fetch_assoc()) {
     
     <div class="sidebar-nav">
         <a href="caregiver_dashboard.php"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+        <a href="caregiver_profile.php"><i class="fa-solid fa-user-pen"></i> My Profile</a>
         <a href="#" class="active"><i class="fa-solid fa-user-group"></i> My Residents</a>
         <a href="log_health.php"><i class="fa-solid fa-heart-pulse"></i> Log Health Data</a>
         <a href="manage_routines.php"><i class="fa-solid fa-calendar-check"></i> Manage Routines</a>
