@@ -373,9 +373,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                     </div>
 
-                    <button type="submit" class="btn-success">
-                        <i class="fas fa-user-plus me-2"></i><span>Add Caregiver</span>
-                    </button>
+                    <div class="d-flex justify-content-between gap-3 mt-4 btn-group">
+                        <a href="manage_caregivers.php" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left me-2"></i>Back to Caregivers
+                        </a>
+                        <button type="submit" class="btn-success">
+                            <i class="fas fa-user-plus me-2"></i><span>Add Caregiver</span>
+                        </button>
+                    </div>
                 </form>
             </div>
         </div>
