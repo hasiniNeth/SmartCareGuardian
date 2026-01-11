@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } elseif ($user['role'] === 'caregiver') {
                 header("Location: caregiver/caregiver_dashboard.php");
             } else {
-                header("Location: resident_dashboard.php");
+                header("Location: resident/resident_dashboard.php");
             }
             exit();
         } else {
