@@ -38,7 +38,17 @@ $validation_errors = [];
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Get form data
     $resident_id = trim($_POST['resident_id'] ?? '');
-    $blood_pressure = trim($_POST['blood_pressure'] ?? '');
+    $blood_pressure_raw = trim($_POST['blood_pressure'] ?? '');
+    $bp_systolic = null;
+    $bp_diastolic = null;
+
+    if (!empty($blood_pressure_raw)) {
+        if (!preg_match('/^\d{2,3}\/\d{2,3}$/', $blood_pressure_raw)) {
+            $validation_errors[] = "Blood pressure must be in format: systolic/diastolic (e.g., 120/80)";
+        } else {
+            [$bp_systolic, $bp_diastolic] = array_map('intval', explode('/', $blood_pressure_raw));
+        }
+    }
     $blood_sugar = trim($_POST['blood_sugar'] ?? '');
     $pulse = trim($_POST['pulse'] ?? '');
     $weight = trim($_POST['weight'] ?? '');
@@ -49,11 +59,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Server-side validation
     if (empty($resident_id)) {
         $validation_errors[] = "Please select a resident.";
-    }
-    
-    // Validate blood pressure format
-    if (!empty($blood_pressure) && !preg_match('/^\d{2,3}\/\d{2,3}$/', $blood_pressure)) {
-        $validation_errors[] = "Blood pressure must be in format: systolic/diastolic (e.g., 120/80)";
     }
     
     // Validate blood sugar range
@@ -104,28 +109,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     
     // If no validation errors, proceed with database operations
     if (empty($validation_errors)) {
-        // Create health_logs table if it doesn't exist
-        $create_table_sql = "
-            CREATE TABLE IF NOT EXISTS health_logs (
-                log_id INT PRIMARY KEY AUTO_INCREMENT,
-                resident_id INT NOT NULL,
-                caregiver_id INT NOT NULL,
-                blood_pressure VARCHAR(20),
-                blood_sugar DECIMAL(5,2),
-                pulse INT,
-                weight DECIMAL(5,2),
-                temperature DECIMAL(4,2),
-                oxygen_saturation INT,
-                notes TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                FOREIGN KEY (resident_id) REFERENCES users(user_id),
-                FOREIGN KEY (caregiver_id) REFERENCES users(user_id)
-            )
-        ";
-        
-        if ($conn->query($create_table_sql)) {
             // Prepare data for insertion (convert empty strings to NULL)
-            $blood_pressure = empty($blood_pressure) ? null : $blood_pressure;
+            if (
+                $bp_systolic === null &&
+                $bp_diastolic === null &&
+                empty($blood_sugar) &&
+                empty($pulse) &&
+                empty($weight) &&
+                empty($temperature) &&
+                empty($oxygen_saturation)
+            ) {
+                $validation_errors[] = "Please provide at least one health metric.";
+            }
             $blood_sugar = empty($blood_sugar) ? null : floatval($blood_sugar);
             $pulse = empty($pulse) ? null : intval($pulse);
             $weight = empty($weight) ? null : floatval($weight);
@@ -136,21 +131,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Insert health data
             $insert_stmt = $conn->prepare("
                 INSERT INTO health_logs 
-                (resident_id, caregiver_id, blood_pressure, blood_sugar, pulse, weight, temperature, oxygen_saturation, notes) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (resident_id, caregiver_id, blood_pressure_systolic, blood_pressure_diastolic, blood_sugar, pulse, weight, temperature, oxygen_saturation, notes)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             ");
-            
-            // Use 'd' for double/decimal parameters
+
             $insert_stmt->bind_param(
-                "iisdiddis", 
-                $resident_id, 
-                $caregiver_id, 
-                $blood_pressure, 
-                $blood_sugar, 
-                $pulse, 
-                $weight, 
-                $temperature, 
-                $oxygen_saturation, 
+                "iiiididdis",
+                $resident_id,
+                $caregiver_id,
+                $bp_systolic,
+                $bp_diastolic,
+                $blood_sugar,
+                $pulse,
+                $weight,
+                $temperature,
+                $oxygen_saturation,
                 $notes
             );
             
@@ -158,38 +153,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $success_message = "Health data logged successfully!";
                 
                 // Check for abnormal values and create alerts
-                checkAbnormalValues($resident_id, $blood_pressure, $blood_sugar, $pulse, $weight, $temperature, $oxygen_saturation, $conn);
-                
+                checkAbnormalValues(
+                    $resident_id,
+                    $bp_systolic,
+                    $bp_diastolic,
+                    $blood_sugar,
+                    $pulse,
+                    $weight,
+                    $temperature,
+                    $oxygen_saturation,
+                    $conn
+                );                
                 // Clear form data after successful submission
                 $_POST = array();
                 
             } else {
                 $error_message = "Error logging health data: " . $conn->error;
             }
-        } else {
-            $error_message = "Error creating health logs table: " . $conn->error;
-        }
     } else {
         $error_message = "Please fix the following errors:";
     }
 }
 
 // Function to check for abnormal values and create alerts
-function checkAbnormalValues($resident_id, $bp, $sugar, $pulse, $weight, $temp, $oxygen, $conn) {
+function checkAbnormalValues($resident_id, $sys, $dia, $sugar, $pulse, $weight, $temp, $oxygen, $conn) {
     $alerts = [];
     
     // Blood Pressure check (systolic/diastolic)
-    if ($bp) {
-        $bp_parts = explode('/', $bp);
-        if (count($bp_parts) == 2) {
-            $systolic = intval($bp_parts[0]);
-            $diastolic = intval($bp_parts[1]);
-            
-            if ($systolic > 140 || $diastolic > 90) {
-                $alerts[] = "High blood pressure: $bp (Normal: <140/90)";
-            } elseif ($systolic < 90 || $diastolic < 60) {
-                $alerts[] = "Low blood pressure: $bp (Normal: >90/60)";
-            }
+    if ($sys !== null && $dia !== null) {
+    if ($sys > 140 || $dia > 90) {
+            $alerts[] = "High blood pressure: {$sys}/{$dia}";
+        } elseif ($sys < 90 || $dia < 60) {
+            $alerts[] = "Low blood pressure: {$sys}/{$dia}";
         }
     }
     
