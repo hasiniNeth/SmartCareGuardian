@@ -360,14 +360,15 @@ $services = $conn->query("
         </div>
         
         <nav class="sidebar-nav">
-            <a href="admin_dashboard.php"><i class="fas fa-gauge-high"></i> Dashboard</a>
-            <a href="manage_users.php"><i class="fas fa-users"></i> Manage Users</a>
-            <a href="manage_caregivers.php"><i class="fas fa-hand-holding-heart"></i> Caregivers</a>
-            <a href="manage_residents.php"><i class="fas fa-user-group"></i> Residents</a>
-            <a href="assign_caregiver.php"><i class="fas fa-link"></i> Assign Caregivers</a>
-            <a href="#" class="active"><i class="fas fa-spa"></i> Manage Services</a>
+            <a href="admin_dashboard.php"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
+            <a href="manage_users.php"><i class="fa-solid fa-users"></i> Manage Users</a>
+            <a href="manage_caregivers.php"><i class="fa-solid fa-hand-holding-heart"></i> Manage Caregivers</a>
+            <a href="manage_residents.php"><i class="fa-solid fa-user-group"></i> Manage Residents</a>
+            <a href="assign_caregiver.php"><i class="fa-solid fa-link"></i> Assign Caregivers</a>
+            <a href="#" class="active"><i class="fa-solid fa-spa"></i> Manage Services</a>
             <a href="messages.php"><i class="fa-solid fa-envelope"></i> Messages</a>
-            <a href="view_alerts.php"><i class="fas fa-bell"></i> Alerts</a>
+            <a href="admin_alerts.php"><i class="fa-solid fa-bell"></i> Health Alerts</a>
+            <a href="admin_reports.php"><i class="fa-solid fa-chart-line"></i> Reports & Analytics</a>
         </nav>
         
         <div class="sidebar-footer">
