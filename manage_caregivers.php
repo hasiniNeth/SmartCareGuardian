@@ -442,125 +442,126 @@ if (!empty($params)) {
             gap: 4px;
         }
 
-   /* MODAL STYLES - FIXED VERSION */
-.modal {
-    z-index: 1055 !important;
-}
+        /* ===== FIXED MODAL STYLES ===== */
+        .modal {
+            z-index: 1060 !important;
+            overflow-y: auto !important;
+        }
 
-.modal-backdrop {
-    z-index: 1050 !important;
-    background-color: rgba(0, 0, 0, 0.5) !important;
-}
+        .modal-backdrop {
+            z-index: 1055 !important;
+            background-color: rgba(0, 0, 0, 0.5) !important;
+        }
 
-.modal-content {
-    border-radius: 15px;
-    border: none;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-}
+        .modal-dialog {
+            margin: 1.75rem auto !important;
+            max-width: 800px !important;
+            z-index: 1065 !important;
+        }
 
-.modal-header {
-    background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-    color: white;
-    border-radius: 15px 15px 0 0;
-    border: none;
-    padding: 20px 30px;
-}
+        .modal-content {
+            border-radius: 15px;
+            border: none;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            max-height: 85vh !important;
+            overflow-y: auto !important;
+        }
 
-.modal-header .btn-close {
-    background: none;
-    color: white;
-    opacity: 1;
-    filter: brightness(0) invert(1);
-    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
-}
+        .modal-header {
+            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
+            color: white;
+            border-radius: 15px 15px 0 0;
+            border: none;
+            padding: 20px 30px;
+            position: sticky;
+            top: 0;
+            z-index: 1070;
+        }
 
-.modal-body {
-    padding: 30px;
-    max-height: 70vh;
-    overflow-y: auto;
-}
+        .modal-header .btn-close {
+            background: none;
+            color: white;
+            opacity: 1;
+            filter: brightness(0) invert(1);
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23fff'%3e%3cpath d='M.293.293a1 1 0 0 1 1.414 0L8 6.586 14.293.293a1 1 0 1 1 1.414 1.414L9.414 8l6.293 6.293a1 1 0 0 1-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 0 1-1.414-1.414L6.586 8 .293 1.707a1 1 0 0 1 0-1.414z'/%3e%3c/svg%3e");
+        }
 
-.caregiver-detail-row {
-    display: flex;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid var(--forest-mist);
-}
+        .modal-body {
+            padding: 30px;
+            overflow-y: visible !important;
+        }
 
-.detail-icon {
-    width: 40px;
-    height: 40px;
-    background: var(--forest-mist);
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--deep-emerald);
-    margin-right: 15px;
-    flex-shrink: 0;
-}
+        .caregiver-detail-row {
+            display: flex;
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid var(--forest-mist);
+        }
 
-.detail-content {
-    flex: 1;
-}
+        .detail-icon {
+            width: 40px;
+            height: 40px;
+            background: var(--forest-mist);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--deep-emerald);
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
 
-.detail-label {
-    font-weight: 600;
-    color: var(--deep-emerald);
-    margin-bottom: 5px;
-    font-size: 14px;
-}
+        .detail-content {
+            flex: 1;
+        }
 
-.detail-value {
-    color: #333;
-}
+        .detail-label {
+            font-weight: 600;
+            color: var(--deep-emerald);
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
 
-.skills-tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-top: 5px;
-}
+        .detail-value {
+            color: #333;
+        }
 
-.skill-tag {
-    background: var(--light-sage);
-    color: var(--deep-emerald);
-    padding: 6px 12px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 500;
-}
+        .skills-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 5px;
+        }
 
-.modal-footer {
-    border-top: 1px solid var(--forest-mist);
-    padding: 20px 30px;
-    background: var(--light-sage);
-    border-radius: 0 0 15px 15px;
-}
+        .skill-tag {
+            background: var(--light-sage);
+            color: var(--deep-emerald);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
 
-/* FIX FOR MODAL SCROLLING */
-.modal-open {
-    overflow: hidden !important;
-    padding-right: 0 !important;
-}
+        .modal-footer {
+            border-top: 1px solid var(--forest-mist);
+            padding: 20px 30px;
+            background: var(--light-sage);
+            border-radius: 0 0 15px 15px;
+            position: sticky;
+            bottom: 0;
+            z-index: 1070;
+        }
 
-.modal.show .modal-dialog {
-    transform: translate(0, 0) !important;
-}
+        /* Fix for body scrolling when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+        }
 
-.modal.fade .modal-dialog {
-    transition: transform .3s ease-out !important;
-}
-
-/* Ensure modal is properly positioned */
-.modal-dialog-centered {
-    min-height: calc(100% - 1rem);
-}
-
-/* Fix for backdrop overlay */
-.modal-backdrop.show {
-    opacity: 0.5 !important;
-}
+        body.modal-open .content {
+            filter: blur(2px);
+            pointer-events: none;
+        }
 
         /* Responsive */
         @media (max-width: 768px) {
@@ -593,11 +594,16 @@ if (!empty($params)) {
                 width: 100%;
                 text-align: center;
             }
+            
+            .modal-dialog {
+                margin: 0.5rem !important;
+                max-width: 95% !important;
+            }
         }
     </style>
 </head>
 
-<body data-bs-spy="scroll" data-bs-target=".sidebar">
+<body>
 
 <!-- Sidebar -->
 <div class="sidebar">
@@ -609,12 +615,13 @@ if (!empty($params)) {
     <div class="sidebar-nav">
         <a href="admin_dashboard.php"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
         <a href="manage_users.php"><i class="fa-solid fa-users"></i> Manage Users</a>
-        <a href="#" class="active"><i class="fa-solid fa-hand-holding-heart"></i> Caregivers</a>
-        <a href="manage_residents.php"><i class="fa-solid fa-user-group"></i> Residents</a>
+        <a href="#" class="active"><i class="fa-solid fa-hand-holding-heart"></i> Manage Caregivers</a>
+        <a href="manage_residents.php"><i class="fa-solid fa-user-group"></i> Manage Residents</a>
         <a href="assign_caregiver.php"><i class="fa-solid fa-link"></i> Assign Caregivers</a>
         <a href="manage_services.php"><i class="fa-solid fa-spa"></i> Manage Services</a>
         <a href="messages.php"><i class="fa-solid fa-envelope"></i> Messages</a>
-        <a href="view_alerts.php"><i class="fa-solid fa-bell"></i> Alerts</a>
+        <a href="admin_alerts.php"><i class="fa-solid fa-bell"></i> Health Alerts</a>
+        <a href="admin_reports.php"><i class="fa-solid fa-chart-line"></i> Reports & Analytics</a>
     </div>
     
     <div class="sidebar-footer">
@@ -722,7 +729,22 @@ if (!empty($params)) {
                                 </td>
                                 <td>
                                     <div class="d-flex gap-2 flex-wrap">
-                                        <button class="btn-action btn-view" data-bs-toggle="modal" data-bs-target="#caregiverModal<?= $row['user_id']; ?>">
+                                        <button 
+                                            class="btn-action btn-view view-btn"
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#caregiverModal"
+                                            data-id="<?= $row['user_id']; ?>"
+                                            data-name="<?= htmlspecialchars($row['full_name']); ?>"
+                                            data-email="<?= htmlspecialchars($row['email']); ?>"
+                                            data-phone="<?= htmlspecialchars($row['phone']); ?>"
+                                            data-gender="<?= htmlspecialchars($row['gender']); ?>"
+                                            data-dob="<?= htmlspecialchars($row['dob']); ?>"
+                                            data-experience="<?= $row['experience_years']; ?>"
+                                            data-address="<?= htmlspecialchars($row['address']); ?>"
+                                            data-skills="<?= htmlspecialchars($row['skills']); ?>"
+                                            data-created="<?= htmlspecialchars($row['created_at']); ?>"
+                                            data-status="<?= htmlspecialchars($row['status']); ?>"
+                                        >
                                             <i class="fas fa-eye"></i> View
                                         </button>
                                         <a href="edit_caregiver.php?id=<?= $row['user_id']; ?>" class="btn-action btn-edit">
@@ -736,177 +758,6 @@ if (!empty($params)) {
                                     </div>
                                 </td>
                             </tr>
-
-                            <!-- Caregiver Details Modal -->
-                            <div class="modal fade" id="caregiverModal<?= $row['user_id']; ?>" tabindex="-1" 
-                                aria-labelledby="caregiverModalLabel<?= $row['user_id']; ?>" aria-hidden="true">
-                                <div class="modal-dialog modal-lg modal-dialog-centered">
-                                    <div class="modal-content">
-                                        <div class="modal-header">
-                                            <h5 class="modal-title brand-font" id="caregiverModalLabel<?= $row['user_id']; ?>">
-                                                <i class="fas fa-user-nurse me-2"></i><?= htmlspecialchars($row['full_name']); ?> - Details
-                                            </h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body">
-                                            <div class="row">
-                                                <!-- Personal Information -->
-                                                <div class="col-md-6">
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-user"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Full Name</div>
-                                                            <div class="detail-value"><?= htmlspecialchars($row['full_name']); ?></div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-envelope"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Email</div>
-                                                            <div class="detail-value"><?= htmlspecialchars($row['email']); ?></div>
-                                                        </div>
-                                                    </div>
-                                                    
-                                                    <?php if (!empty($row['phone'])): ?>
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-phone"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Phone Number</div>
-                                                            <div class="detail-value"><?= htmlspecialchars($row['phone']); ?></div>
-                                                        </div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if (!empty($row['gender'])): ?>
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-venus-mars"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Gender</div>
-                                                            <div class="detail-value"><?= ucfirst($row['gender']); ?></div>
-                                                        </div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                </div>
-                                                
-                                                <!-- Additional Information -->
-                                                <div class="col-md-6">
-                                                    <?php if (!empty($row['dob'])): ?>
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-birthday-cake"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Date of Birth</div>
-                                                            <div class="detail-value">
-                                                                <?php 
-                                                                if (!empty($row['dob']) && $row['dob'] !== '0000-00-00') {
-                                                                    echo date('F j, Y', strtotime($row['dob']));
-                                                                } else {
-                                                                    echo 'N/A';
-                                                                }
-                                                                ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if ($row['experience_years'] > 0): ?>
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-medal"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Experience</div>
-                                                            <div class="detail-value">
-                                                                <span class="experience-badge">
-                                                                    <?= $row['experience_years']; ?> years
-                                                                </span>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                    
-                                                    <?php if (!empty($row['address'])): ?>
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-map-marker-alt"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Address</div>
-                                                            <div class="detail-value"><?= htmlspecialchars($row['address']); ?></div>
-                                                        </div>
-                                                    </div>
-                                                    <?php endif; ?>
-                                                    
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-user-plus"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Joined On</div>
-                                                            <div class="detail-value">
-                                                                <?php 
-                                                                if (!empty($row['created_at'])) {
-                                                                    echo date('F j, Y', strtotime($row['created_at']));
-                                                                } else {
-                                                                    echo 'N/A';
-                                                                }
-                                                                ?>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                
-                                                <!-- Skills Section -->
-                                                <?php if (!empty($row['skills'])): ?>
-                                                <div class="col-12">
-                                                    <div class="caregiver-detail-row">
-                                                        <div class="detail-icon">
-                                                            <i class="fas fa-tools"></i>
-                                                        </div>
-                                                        <div class="detail-content">
-                                                            <div class="detail-label">Skills & Specializations</div>
-                                                            <div class="detail-value">
-                                                                <div class="skills-tags">
-                                                                    <?php 
-                                                                    $skills = explode(',', $row['skills']);
-                                                                    foreach ($skills as $skill): 
-                                                                        $trimmed_skill = trim($skill);
-                                                                        if (!empty($trimmed_skill)):
-                                                                    ?>
-                                                                        <span class="skill-tag"><?= htmlspecialchars($trimmed_skill); ?></span>
-                                                                    <?php 
-                                                                        endif;
-                                                                    endforeach; 
-                                                                    ?>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                                <?php endif; ?>
-                                            </div>
-                                        </div>
-                                        <div class="modal-footer">
-                                            <a href="edit_caregiver.php?id=<?= $row['user_id']; ?>" class="btn-action btn-edit">
-                                                <i class="fas fa-edit me-2"></i>Edit Profile
-                                            </a>
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-                                                <i class="fas fa-times me-2"></i>Close
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
                         <?php endwhile; ?>
                     <?php else: ?>
                         <tr>
@@ -937,6 +788,52 @@ if (!empty($params)) {
     </div>
 </div>
 
+<!-- Reusable Caregiver Modal -->
+<div class="modal fade" id="caregiverModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title brand-font">
+                    <i class="fas fa-user-nurse me-2"></i>
+                    <span id="modalName"></span>
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <p><strong>Email:</strong> <span id="modalEmail"></span></p>
+                        <p><strong>Phone:</strong> <span id="modalPhone"></span></p>
+                        <p><strong>Gender:</strong> <span id="modalGender"></span></p>
+                        <p><strong>Date of Birth:</strong> <span id="modalDob"></span></p>
+                    </div>
+                    <div class="col-md-6">
+                        <p><strong>Experience:</strong> <span id="modalExperience"></span></p>
+                        <p><strong>Address:</strong> <span id="modalAddress"></span></p>
+                        <p><strong>Status:</strong> <span id="modalStatus"></span></p>
+                        <p><strong>Joined:</strong> <span id="modalCreated"></span></p>
+                    </div>
+
+                    <div class="col-12 mt-3">
+                        <strong>Skills:</strong>
+                        <div id="modalSkills" class="mt-2"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <a id="modalEditBtn" href="#" class="btn-action btn-edit">
+                    <i class="fas fa-edit me-2"></i>Edit
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
@@ -959,18 +856,6 @@ document.addEventListener('DOMContentLoaded', function() {
         searchInput.focus();
         searchInput.select();
     }
-    
-    // Clean up any modal conflicts
-    const modals = document.querySelectorAll('.modal');
-    modals.forEach(modal => {
-        modal.style.zIndex = '1055';
-        modal.style.position = 'fixed';
-        modal.style.left = '0';
-        modal.style.top = '0';
-        modal.style.display = 'none';
-        modal.style.backgroundColor = 'transparent';
-        modal.style.overflow = 'hidden';
-    });
 });
 
 // Preserve search state when deleting
@@ -987,17 +872,40 @@ document.querySelectorAll('.btn-delete').forEach(link => {
     });
 });
 
-// Handle modal opening and closing properly
-document.addEventListener('show.bs.modal', function(e) {
-    document.body.classList.add('modal-open');
-    document.body.style.overflow = 'hidden';
-    document.body.style.paddingRight = '0px';
-});
+// Populate Modal Dynamically
+document.querySelectorAll('.view-btn').forEach(button => {
+    button.addEventListener('click', function () {
 
-document.addEventListener('hidden.bs.modal', function(e) {
-    document.body.classList.remove('modal-open');
-    document.body.style.overflow = '';
-    document.body.style.paddingRight = '';
+        document.getElementById('modalName').textContent = this.dataset.name;
+        document.getElementById('modalEmail').textContent = this.dataset.email || 'N/A';
+        document.getElementById('modalPhone').textContent = this.dataset.phone || 'N/A';
+        document.getElementById('modalGender').textContent = this.dataset.gender || 'N/A';
+        document.getElementById('modalDob').textContent = this.dataset.dob || 'N/A';
+        document.getElementById('modalExperience').textContent = 
+            this.dataset.experience > 0 ? this.dataset.experience + ' years' : 'N/A';
+        document.getElementById('modalAddress').textContent = this.dataset.address || 'N/A';
+        document.getElementById('modalStatus').textContent = this.dataset.status;
+        document.getElementById('modalCreated').textContent = this.dataset.created || 'N/A';
+
+        // Skills
+        const skillsContainer = document.getElementById('modalSkills');
+        skillsContainer.innerHTML = '';
+
+        if (this.dataset.skills) {
+            this.dataset.skills.split(',').forEach(skill => {
+                const span = document.createElement('span');
+                span.className = 'skill-tag';
+                span.textContent = skill.trim();
+                skillsContainer.appendChild(span);
+            });
+        } else {
+            skillsContainer.textContent = 'No skills listed';
+        }
+
+        // Edit button link
+        document.getElementById('modalEditBtn').href =
+            "edit_caregiver.php?id=" + this.dataset.id;
+    });
 });
 </script>
 </body>
