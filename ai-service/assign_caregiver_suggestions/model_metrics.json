@@ -1,0 +1,30 @@
+{
+  "algorithm": "Random Forest Classifier",
+  "n_estimators": 200,
+  "accuracy": 94.71,
+  "auc": 0.9475,
+  "cv_mean": 93.04,
+  "cv_std": 2.58,
+  "train_size": 678,
+  "test_size": 170,
+  "features": [
+    "experience_years",
+    "skill_match_count",
+    "skill_match_ratio",
+    "current_assignments",
+    "risk_level_encoded",
+    "exp_meets_risk",
+    "total_skills",
+    "condition_count"
+  ],
+  "feature_importance": {
+    "experience_years": 0.0941,
+    "skill_match_count": 0.2088,
+    "skill_match_ratio": 0.2181,
+    "current_assignments": 0.3287,
+    "risk_level_encoded": 0.0224,
+    "exp_meets_risk": 0.0644,
+    "total_skills": 0.0363,
+    "condition_count": 0.0272
+  }
+}

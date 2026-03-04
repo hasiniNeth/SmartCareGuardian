@@ -1,0 +1,22 @@
+{
+    "model_name": "XGBoost (Optimized)",
+    "model_type": "tree",
+    "features": [
+        "blood_pressure_systolic",
+        "blood_pressure_diastolic",
+        "blood_sugar",
+        "pulse",
+        "weight",
+        "temperature",
+        "oxygen_saturation",
+        "hour",
+        "day_of_week",
+        "month"
+    ],
+    "test_accuracy": 0.7555555555555555,
+    "test_precision": 0.4669603524229075,
+    "test_recall": 0.8050632911392405,
+    "test_f1": 0.5910780669144982,
+    "test_auc": 0.8891751880715347,
+    "train_date": "2026-02-25 11:24:37"
+}
