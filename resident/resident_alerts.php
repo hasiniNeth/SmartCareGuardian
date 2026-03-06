@@ -140,6 +140,47 @@ h1,h2,h3,h4,h5{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0
 .topbar p{font-size:15px;color:var(--st300);margin:0;}
 .logout-btn{background:linear-gradient(135deg,#C87A7A,#8B3A3A);border:none;border-radius:var(--radius-sm);color:white;padding:11px 22px;font-size:15px;font-weight:700;font-family:'Outfit',sans-serif;cursor:pointer;transition:all .25s;display:inline-flex;align-items:center;gap:7px;}
 .logout-btn:hover{opacity:.9;transform:translateY(-1px);}
+.topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+          flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        .date-chip {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--s600);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .topbar-btn {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: var(--radius-sm);
+            padding: 7px 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--st500);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: var(--shadow-soft);
+            transition: all .2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .topbar-btn:hover { background: var(--s50); border-color: var(--s200); color: var(--s600); }
+
 
 /* ── Section card ── */
 .sc{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);border:1px solid rgba(196,217,180,.3);margin-bottom:24px;overflow:hidden;animation:fadeUp .4s ease both;}
@@ -308,6 +349,12 @@ h1,h2,h3,h4,h5{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0
         <div>
             <h4><i class="fas fa-bell me-2" style="font-size:22px;color:var(--s500);"></i>My Health Alerts</h4>
             <p>Your AI risk assessment, trend history, and health warnings</p>
+        </div>
+        <div class="topbar-actions">
+            <button class="topbar-btn" onclick="increaseFontSize()"><i class="fas fa-search-plus"></i>Larger</button>
+            <button class="topbar-btn" onclick="decreaseFontSize()"><i class="fas fa-search-minus"></i>Smaller</button>
+            <button class="topbar-btn" onclick="resetFontSize()"><i class="fas fa-redo"></i>Reset</button>
+            <button class="topbar-btn" onclick="toggleHighContrast()"><i class="fas fa-adjust"></i>Contrast</button>
         </div>
         <div class="d-flex align-items-center gap-3">
             <span style="font-size:15px;font-weight:600;">
@@ -619,50 +666,97 @@ h1,h2,h3,h4,h5{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const fill = document.getElementById('rbarFill');
-    if (fill) { const t=fill.style.width; fill.style.width='0%'; setTimeout(()=>{fill.style.transition='width 1.2s cubic-bezier(.4,0,.2,1)';fill.style.width=t;},300); }
+    (function() {
+    var BASE = 12, MIN = 10, MAX = 18;
+    var sz = parseInt(localStorage.getItem('elderFontSize')) || BASE;
+    if (isNaN(sz) || sz < MIN || sz > MAX) sz = BASE;
+    document.documentElement.style.fontSize = sz + 'px';
 
-    const trendCanvas = document.getElementById('trendChart');
-    if (trendCanvas) {
-        const trend = <?= json_encode($trend_data) ?>;
-        const colors = { low:'#7AA658', medium:'#D4A853', high:'#C87A7A' };
-        new Chart(trendCanvas, {
-            type:'line',
-            data:{
-                labels: trend.map(t=>{ const d=new Date(t.date); return (d.getMonth()+1)+'/'+(d.getDate()); }),
-                datasets:[{
-                    label:'Risk %',
-                    data: trend.map(t=>parseFloat(t.avg_pct)),
-                    borderColor:'#5E8A40', backgroundColor:'rgba(94,138,64,0.08)',
-                    borderWidth:2.5, tension:0.38, fill:true,
-                    pointBackgroundColor: trend.map(t=>colors[t.level]||'#B8B0A4'),
-                    pointRadius:6, pointHoverRadius:8,
-                }]
-            },
-            options:{
-                responsive:true, maintainAspectRatio:false,
-                plugins:{
-                    legend:{display:false},
-                    tooltip:{callbacks:{
-                        label:ctx=>' Risk: '+ctx.parsed.y+'%',
-                        labelColor:ctx=>({borderColor:colors[trend[ctx.dataIndex]?.level]||'#B8B0A4',backgroundColor:colors[trend[ctx.dataIndex]?.level]||'#B8B0A4'})
-                    }}
-                },
-                scales:{
-                    x:{grid:{display:false},ticks:{font:{size:13}}},
-                    y:{min:0,max:100,grid:{color:'rgba(196,217,180,.3)'},ticks:{font:{size:13},callback:v=>v+'%'}}
-                }
-            }
-        });
+    function save(v) {
+        sz = v;
+        document.documentElement.style.fontSize = sz + 'px';
+        localStorage.setItem('elderFontSize', String(sz));
     }
-});
+    function toast(msg) {
+        var old = document.getElementById('_acc_t');
+        if (old) old.remove();
+        var d = document.createElement('div');
+        d.id = '_acc_t';
+        d.style.cssText = 'position:fixed;bottom:28px;right:22px;z-index:99999;pointer-events:none;';
+        d.innerHTML = '<div style="background:rgba(36,56,22,.96);color:#fff;padding:12px 20px;'
+            + 'border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.28);'
+            + 'font-weight:700;font-family:Outfit,sans-serif;font-size:16px;">' + msg + '</div>';
+        document.body.appendChild(d);
+        setTimeout(function() { if (d && d.parentNode) d.remove(); }, 2500);
+    }
+    window.increaseFontSize = function() {
+        if (sz < MAX) { save(sz + 2); toast('Text enlarged (' + sz + 'px)'); }
+        else toast('Maximum size reached');
+    };
+    window.decreaseFontSize = function() {
+        if (sz > MIN) { save(sz - 2); toast('Text reduced (' + sz + 'px)'); }
+        else toast('Minimum size reached');
+    };
+    window.resetFontSize = function() {
+        save(BASE); toast('Text size reset');
+    };
+    window.toggleHighContrast = function() {
+        document.body.classList.toggle('high-contrast');
+        var on = document.body.classList.contains('high-contrast');
+        localStorage.setItem('elderHighContrast', on ? 'true' : 'false');
+        toast(on ? 'High contrast on' : 'High contrast off');
+    };
 
-const activeCount = <?= count($unresolved) ?>;
-if (activeCount > 0) {
-    let orig=document.title, alt=false;
-    setInterval(()=>{document.title=alt?orig:`(${activeCount}) Health Warning - SmartCare`;alt=!alt;},1500);
-}
+    document.addEventListener('DOMContentLoaded', () => {
+        const fill = document.getElementById('rbarFill');
+        if (fill) { const t=fill.style.width; fill.style.width='0%'; setTimeout(()=>{fill.style.transition='width 1.2s cubic-bezier(.4,0,.2,1)';fill.style.width=t;},300); }
+
+        const trendCanvas = document.getElementById('trendChart');
+        if (trendCanvas) {
+            const trend = <?= json_encode($trend_data) ?>;
+            const colors = { low:'#7AA658', medium:'#D4A853', high:'#C87A7A' };
+            new Chart(trendCanvas, {
+                type:'line',
+                data:{
+                    labels: trend.map(t=>{ const d=new Date(t.date); return (d.getMonth()+1)+'/'+(d.getDate()); }),
+                    datasets:[{
+                        label:'Risk %',
+                        data: trend.map(t=>parseFloat(t.avg_pct)),
+                        borderColor:'#5E8A40', backgroundColor:'rgba(94,138,64,0.08)',
+                        borderWidth:2.5, tension:0.38, fill:true,
+                        pointBackgroundColor: trend.map(t=>colors[t.level]||'#B8B0A4'),
+                        pointRadius:6, pointHoverRadius:8,
+                    }]
+                },
+                options:{
+                    responsive:true, maintainAspectRatio:false,
+                    plugins:{
+                        legend:{display:false},
+                        tooltip:{callbacks:{
+                            label:ctx=>' Risk: '+ctx.parsed.y+'%',
+                            labelColor:ctx=>({borderColor:colors[trend[ctx.dataIndex]?.level]||'#B8B0A4',backgroundColor:colors[trend[ctx.dataIndex]?.level]||'#B8B0A4'})
+                        }}
+                    },
+                    scales:{
+                        x:{grid:{display:false},ticks:{font:{size:13}}},
+                        y:{min:0,max:100,grid:{color:'rgba(196,217,180,.3)'},ticks:{font:{size:13},callback:v=>v+'%'}}
+                    }
+                }
+            });
+        }
+    });
+
+    const activeCount = <?= count($unresolved) ?>;
+    if (activeCount > 0) {
+        let orig=document.title, alt=false;
+        setInterval(()=>{document.title=alt?orig:`(${activeCount}) Health Warning - SmartCare`;alt=!alt;},1500);
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.style.fontSize = sz + 'px';
+        if (localStorage.getItem('elderHighContrast') === 'true')
+            document.body.classList.add('high-contrast');
+    });
+})();
 </script>
 </body>
 </html>
