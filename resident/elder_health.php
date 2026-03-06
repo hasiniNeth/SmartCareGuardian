@@ -2,6 +2,8 @@
 session_start();
 include '../db_connection.php';
 
+date_default_timezone_set('Asia/Colombo');
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'resident') {
     header("Location: ../login.php");
     exit();
@@ -424,7 +426,46 @@ $export_json = json_encode($export_rows);
 
         .topbar p { font-size: 13px; color: var(--st300); margin: 0; }
 
-        .topbar-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+          flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        .date-chip {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--s600);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .topbar-btn {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: var(--radius-sm);
+            padding: 7px 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--st500);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: var(--shadow-soft);
+            transition: all .2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .topbar-btn:hover { background: var(--s50); border-color: var(--s200); color: var(--s600); }
 
         .export-btn {
             background: linear-gradient(135deg, var(--s400), var(--s600));
@@ -817,6 +858,12 @@ $export_json = json_encode($export_rows);
             <p>Track and monitor your health vitals</p>
         </div>
         <div class="topbar-actions">
+            <button class="topbar-btn" onclick="increaseFontSize()"><i class="fas fa-search-plus"></i>Larger</button>
+            <button class="topbar-btn" onclick="decreaseFontSize()"><i class="fas fa-search-minus"></i>Smaller</button>
+            <button class="topbar-btn" onclick="resetFontSize()"><i class="fas fa-redo"></i>Reset</button>
+            <button class="topbar-btn" onclick="toggleHighContrast()"><i class="fas fa-adjust"></i>Contrast</button>
+        </div>
+        <div class="topbar-actions">
             <button class="export-btn" onclick="exportHealthData()"><i class="fas fa-download"></i>Export CSV</button>
             <button class="print-btn" onclick="window.print()"><i class="fas fa-print"></i>Print</button>
         </div>
@@ -1057,87 +1104,133 @@ $export_json = json_encode($export_rows);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-<?php if (!empty($health_trends)): ?>
-const chartLabels = <?= $chart_labels ?>;
-const seriesData  = {
-    bp: {
-        datasets:[
-            { label:'Systolic',  data:<?= $chart_bp_sys ?>, borderColor:'#C87A7A', backgroundColor:'rgba(200,122,122,.1)',  tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#C87A7A' },
-            { label:'Diastolic', data:<?= $chart_bp_dia ?>, borderColor:'#D4A853', backgroundColor:'rgba(212,168,83,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#D4A853' },
-        ], yMin:50, yMax:180, yLabel:'mmHg',
-    },
-    sugar: {
-        datasets:[{ label:'Blood Sugar', data:<?= $chart_sugar ?>, borderColor:'#9B7EC8', backgroundColor:'rgba(155,126,200,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#9B7EC8' }],
-        yMin:50, yMax:300, yLabel:'mg/dL',
-    },
-    pulse: {
-        datasets:[{ label:'Heart Rate', data:<?= $chart_pulse ?>, borderColor:'#C87A7A', backgroundColor:'rgba(200,122,122,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#C87A7A' }],
-        yMin:30, yMax:150, yLabel:'bpm',
-    },
-    o2: {
-        datasets:[{ label:'Oxygen Sat.', data:<?= $chart_o2 ?>, borderColor:'#5BA4A4', backgroundColor:'rgba(91,164,164,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#5BA4A4' }],
-        yMin:85, yMax:101, yLabel:'%',
-    },
-};
+    (function() {
+    var BASE = 12, MIN = 10, MAX = 18;
+    var sz = parseInt(localStorage.getItem('elderFontSize')) || BASE;
+    if (isNaN(sz) || sz < MIN || sz > MAX) sz = BASE;
+    document.documentElement.style.fontSize = sz + 'px';
 
-Chart.defaults.font.family = 'Outfit, sans-serif';
-Chart.defaults.font.size = 13;
-const ctx = document.getElementById('trendsChart').getContext('2d');
-let trendsChart = new Chart(ctx, {
-    type: 'line',
-    data: { labels: chartLabels, datasets: seriesData.bp.datasets },
-    options: {
-        responsive: true, maintainAspectRatio: false,
-        plugins: {
-            legend: { position:'top', labels:{ usePointStyle:true, padding:18, font:{size:13} } },
-            tooltip: { mode:'index', intersect:false }
-        },
-        scales: {
-            x: { grid:{ color:'rgba(36,56,22,.04)' }, ticks:{ font:{size:12} } },
-            y: { min:50, max:180, title:{ display:true, text:'mmHg', font:{size:12} }, grid:{ color:'rgba(36,56,22,.04)' }, ticks:{ font:{size:12} } }
-        }
+    function save(v) {
+        sz = v;
+        document.documentElement.style.fontSize = sz + 'px';
+        localStorage.setItem('elderFontSize', String(sz));
     }
-});
+    function toast(msg) {
+        var old = document.getElementById('_acc_t');
+        if (old) old.remove();
+        var d = document.createElement('div');
+        d.id = '_acc_t';
+        d.style.cssText = 'position:fixed;bottom:28px;right:22px;z-index:99999;pointer-events:none;';
+        d.innerHTML = '<div style="background:rgba(36,56,22,.96);color:#fff;padding:12px 20px;'
+            + 'border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.28);'
+            + 'font-weight:700;font-family:Outfit,sans-serif;font-size:16px;">' + msg + '</div>';
+        document.body.appendChild(d);
+        setTimeout(function() { if (d && d.parentNode) d.remove(); }, 2500);
+    }
+    window.increaseFontSize = function() {
+        if (sz < MAX) { save(sz + 2); toast('Text enlarged (' + sz + 'px)'); }
+        else toast('Maximum size reached');
+    };
+    window.decreaseFontSize = function() {
+        if (sz > MIN) { save(sz - 2); toast('Text reduced (' + sz + 'px)'); }
+        else toast('Minimum size reached');
+    };
+    window.resetFontSize = function() {
+        save(BASE); toast('Text size reset');
+    };
+    window.toggleHighContrast = function() {
+        document.body.classList.toggle('high-contrast');
+        var on = document.body.classList.contains('high-contrast');
+        localStorage.setItem('elderHighContrast', on ? 'true' : 'false');
+        toast(on ? 'High contrast on' : 'High contrast off');
+    };
+    <?php if (!empty($health_trends)): ?>
+    const chartLabels = <?= $chart_labels ?>;
+    const seriesData  = {
+        bp: {
+            datasets:[
+                { label:'Systolic',  data:<?= $chart_bp_sys ?>, borderColor:'#C87A7A', backgroundColor:'rgba(200,122,122,.1)',  tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#C87A7A' },
+                { label:'Diastolic', data:<?= $chart_bp_dia ?>, borderColor:'#D4A853', backgroundColor:'rgba(212,168,83,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#D4A853' },
+            ], yMin:50, yMax:180, yLabel:'mmHg',
+        },
+        sugar: {
+            datasets:[{ label:'Blood Sugar', data:<?= $chart_sugar ?>, borderColor:'#9B7EC8', backgroundColor:'rgba(155,126,200,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#9B7EC8' }],
+            yMin:50, yMax:300, yLabel:'mg/dL',
+        },
+        pulse: {
+            datasets:[{ label:'Heart Rate', data:<?= $chart_pulse ?>, borderColor:'#C87A7A', backgroundColor:'rgba(200,122,122,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#C87A7A' }],
+            yMin:30, yMax:150, yLabel:'bpm',
+        },
+        o2: {
+            datasets:[{ label:'Oxygen Sat.', data:<?= $chart_o2 ?>, borderColor:'#5BA4A4', backgroundColor:'rgba(91,164,164,.1)', tension:.4, fill:true, pointRadius:4, pointBackgroundColor:'#5BA4A4' }],
+            yMin:85, yMax:101, yLabel:'%',
+        },
+    };
 
-document.querySelectorAll('.ctab').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const s = seriesData[btn.dataset.series];
-        trendsChart.data.datasets = s.datasets;
-        trendsChart.options.scales.y.min = s.yMin;
-        trendsChart.options.scales.y.max = s.yMax;
-        trendsChart.options.scales.y.title.text = s.yLabel;
-        trendsChart.update();
+    Chart.defaults.font.family = 'Outfit, sans-serif';
+    Chart.defaults.font.size = 13;
+    const ctx = document.getElementById('trendsChart').getContext('2d');
+    let trendsChart = new Chart(ctx, {
+        type: 'line',
+        data: { labels: chartLabels, datasets: seriesData.bp.datasets },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: {
+                legend: { position:'top', labels:{ usePointStyle:true, padding:18, font:{size:13} } },
+                tooltip: { mode:'index', intersect:false }
+            },
+            scales: {
+                x: { grid:{ color:'rgba(36,56,22,.04)' }, ticks:{ font:{size:12} } },
+                y: { min:50, max:180, title:{ display:true, text:'mmHg', font:{size:12} }, grid:{ color:'rgba(36,56,22,.04)' }, ticks:{ font:{size:12} } }
+            }
+        }
     });
-});
-<?php endif; ?>
 
-function exportHealthData() {
-    const rows = <?= $export_json ?>;
-    let csv = "Date,Time,Blood Pressure,Blood Sugar,Heart Rate,Weight,Temperature,Oxygen,Notes,Recorded By\n";
-    rows.forEach(r => { csv += r.map(v => `"${String(v??'').replace(/"/g,'""')}"`).join(',') + "\n"; });
-    const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
-    const url  = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'health-data-<?= date('Y-m-d') ?>.csv';
-    document.body.appendChild(a); a.click();
-    document.body.removeChild(a); URL.revokeObjectURL(url);
-    showToast('<?= count($all_logs_for_export) ?> health records exported successfully');
-}
+    document.querySelectorAll('.ctab').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const s = seriesData[btn.dataset.series];
+            trendsChart.data.datasets = s.datasets;
+            trendsChart.options.scales.y.min = s.yMin;
+            trendsChart.options.scales.y.max = s.yMax;
+            trendsChart.options.scales.y.title.text = s.yLabel;
+            trendsChart.update();
+        });
+    });
+    <?php endif; ?>
 
-function showToast(msg) {
-    const existing = document.getElementById('ht');
-    if (existing) existing.remove();
-    const t = document.createElement('div');
-    t.id = 'ht';
-    t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:rgba(36,56,22,.95);color:rgba(255,255,255,.9);padding:14px 20px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-weight:600;font-family:Outfit,sans-serif;font-size:15px;max-width:300px;display:flex;align-items:center;gap:9px;';
-    t.innerHTML = '<i class="fas fa-check-circle" style="color:#9DC07E;"></i>' + msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 3500);
-}
+    function exportHealthData() {
+        const rows = <?= $export_json ?>;
+        let csv = "Date,Time,Blood Pressure,Blood Sugar,Heart Rate,Weight,Temperature,Oxygen,Notes,Recorded By\n";
+        rows.forEach(r => { csv += r.map(v => `"${String(v??'').replace(/"/g,'""')}"`).join(',') + "\n"; });
+        const blob = new Blob([csv], { type:'text/csv;charset=utf-8;' });
+        const url  = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = 'health-data-<?= date('Y-m-d') ?>.csv';
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a); URL.revokeObjectURL(url);
+        showToast('<?= count($all_logs_for_export) ?> health records exported successfully');
+    }
 
-setTimeout(() => location.reload(), 300000);
+    function showToast(msg) {
+        const existing = document.getElementById('ht');
+        if (existing) existing.remove();
+        const t = document.createElement('div');
+        t.id = 'ht';
+        t.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9999;background:rgba(36,56,22,.95);color:rgba(255,255,255,.9);padding:14px 20px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-weight:600;font-family:Outfit,sans-serif;font-size:15px;max-width:300px;display:flex;align-items:center;gap:9px;';
+        t.innerHTML = '<i class="fas fa-check-circle" style="color:#9DC07E;"></i>' + msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 3500);
+    }
+
+    setTimeout(() => location.reload(), 300000);
+    document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.style.fontSize = sz + 'px';
+        if (localStorage.getItem('elderHighContrast') === 'true')
+            document.body.classList.add('high-contrast');
+    });
+})();
 </script>
 </body>
 </html>

@@ -2,8 +2,6 @@
 session_start();
 include '../db_connection.php';
 
-date_default_timezone_set('Asia/Colombo');
-
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'resident') {
     header("Location: ../login.php");
     exit();
@@ -101,6 +99,9 @@ $ua->close();
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+/* elder base — JS scales this */
+/* accessibility base */
+        body { font-size: 1em; }
         /* ═══════════════════════════════════════════════════════════════
            SMARTCARE GUARDIAN — AYURVEDIC DESIGN SYSTEM
            Palette: Sage green · Warm parchment · Stone
@@ -143,7 +144,8 @@ $ua->close();
         }
 
         *, *::before, *::after { box-sizing: border-box; }
-
+/* elder base — scales with accessibility JS */
+/* elder base — JS targets html element to scale all rem/em */
         body {
             font-family: 'Outfit', sans-serif;
             background: var(--w50);
@@ -151,7 +153,7 @@ $ua->close();
                 radial-gradient(ellipse 70% 50% at 90% 0%, rgba(157,192,126,.08) 0%, transparent 55%),
                 radial-gradient(ellipse 50% 40% at 0% 100%, rgba(122,166,88,.05) 0%, transparent 50%);
             color: var(--st700);
-            font-size: 20px;
+            font-size: 1em;
             line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
@@ -204,14 +206,14 @@ $ua->close();
             background: linear-gradient(135deg, var(--s300), var(--s500));
             border-radius: 9px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 22px; color: white;
+            font-size: 1.4rem; color: white;
             box-shadow: 0 3px 10px rgba(0,0,0,.25);
             flex-shrink: 0;
         }
 
         .sidebar-header h4 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 23px;
+            font-size: 1.55rem;
             font-weight: 600;
             color: white;
             line-height: 1.1;
@@ -220,7 +222,7 @@ $ua->close();
         }
 
         .sidebar-header small {
-            font-size: 16px;
+            font-size: 1.65rem;
             color: rgba(255,255,255,.4);
             letter-spacing: .08em;
             text-transform: uppercase;
@@ -241,7 +243,7 @@ $ua->close();
         .sidebar-nav::-webkit-scrollbar-thumb { background: rgba(255,255,255,.15); border-radius: 3px; }
 
         .sb-section-label {
-            font-size: 15.5px;
+            font-size: 1.65rem;
             font-weight: 600;
             letter-spacing: .12em;
             text-transform: uppercase;
@@ -256,7 +258,7 @@ $ua->close();
             padding: 9px 12px 9px 22px;
             color: rgba(255,255,255,.6);
             text-decoration: none;
-            font-size: 18px;
+            font-size: 1.3rem;
             font-weight: 500;
             transition: all .2s;
             margin: 1px 10px;
@@ -283,13 +285,13 @@ $ua->close();
             border-radius: 0 3px 3px 0;
         }
 
-        .sidebar i { width: 18px; text-align: center; font-size: 13px; opacity: .85; }
+        .sidebar i { width: 18px; text-align: center; font-size: 1.3rem; opacity: .85; }
 
         .sb-badge {
             margin-left: auto;
             background: #8B3A3A;
             color: white;
-            font-size: 9px;
+            font-size: 1.65rem;
             font-weight: 700;
             padding: 2px 6px;
             border-radius: 20px;
@@ -307,12 +309,12 @@ $ua->close();
         }
 
         .sidebar-info-card .si-label {
-            font-size: 16px; font-weight: 600; letter-spacing: .1em;
+            font-size: 1.65rem; font-weight: 600; letter-spacing: .1em;
             text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 5px;
         }
 
-        .sidebar-info-card .si-name  { font-size: 12px; font-weight: 600; color: rgba(255,255,255,.85); }
-        .sidebar-info-card .si-email { font-size: 10px; color: rgba(255,255,255,.4); margin-top: 1px; }
+        .sidebar-info-card .si-name  { font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,.85); }
+        .sidebar-info-card .si-email { font-size: 1.65rem; color: rgba(255,255,255,.4); margin-top: 1px; }
 
         .sidebar-emergency {
             margin: 8px 12px 20px;
@@ -325,11 +327,11 @@ $ua->close();
         }
 
         .sidebar-emergency .se-label {
-            font-size: 9px; letter-spacing: .1em; text-transform: uppercase;
+            font-size: 1.65rem; letter-spacing: .1em; text-transform: uppercase;
             color: rgba(255,180,180,.5); margin-bottom: 4px;
         }
 
-        .sidebar-emergency .se-contact { font-size: 11px; font-weight: 600; color: rgba(255,200,200,.8); margin-bottom: 8px; }
+        .sidebar-emergency .se-contact { font-size: 1.75rem; font-weight: 600; color: rgba(255,200,200,.8); margin-bottom: 8px; }
 
         .btn-emergency {
             background: rgba(200,60,60,.4);
@@ -337,7 +339,7 @@ $ua->close();
             color: rgba(255,200,200,.9);
             border-radius: 20px;
             padding: 5px 14px;
-            font-size: 10px;
+            font-size: 1.65rem;
             font-weight: 700;
             font-family: 'Outfit', sans-serif;
             cursor: pointer;
@@ -376,7 +378,7 @@ $ua->close();
 
         .welcome-text {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 26px;
+            font-size: 2.1rem;
             font-weight: 500;
             color: var(--s800);
             line-height: 1.1;
@@ -387,7 +389,7 @@ $ua->close();
         .welcome-text em { font-style: italic; color: var(--s500); }
 
         .welcome-sub {
-            font-size: 12px;
+            font-size: 1.2rem;
             color: var(--st300);
             font-weight: 400;
             margin: 0;
@@ -399,14 +401,14 @@ $ua->close();
             gap: 7px;
             margin-top: 4px;
             flex-wrap: wrap;
-        }
+          flex-wrap: wrap; gap: 8px; align-items: center; }
 
         .date-chip {
             background: white;
             border: 1px solid var(--s100);
             border-radius: 20px;
             padding: 7px 14px;
-            font-size: 11.5px;
+            font-size: 1rem;
             font-weight: 600;
             color: var(--s600);
             display: flex;
@@ -420,8 +422,8 @@ $ua->close();
             border: 1px solid var(--s100);
             border-radius: var(--radius-sm);
             padding: 7px 12px;
-            font-size: 11px;
-            font-weight: 600;
+            font-size: 1rem;
+            font-weight: 400;
             color: var(--st500);
             cursor: pointer;
             display: flex;
@@ -441,7 +443,7 @@ $ua->close();
             color: white;
             padding: 7px 16px;
             font-weight: 600;
-            font-size: 11px;
+            font-size: 1.75rem;
             font-family: 'Outfit', sans-serif;
             cursor: pointer;
             transition: all .25s;
@@ -483,7 +485,7 @@ $ua->close();
             width: 40px; height: 40px;
             border-radius: 11px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 15px;
+            font-size: 1.4rem;
             margin-bottom: 14px;
         }
 
@@ -492,14 +494,14 @@ $ua->close();
         .kpi-card.kpi-rose  .kpi-icon { background: linear-gradient(135deg, #F0C8C8, #C87A7A); color: #6A2020; }
         .kpi-card.kpi-amber .kpi-icon { background: linear-gradient(135deg, #F0DFB0, #D4A853); color: #7A5010; }
 
-        .kpi-num   { font-size: 28px; font-weight: 700; color: var(--s800); line-height: 1; margin-bottom: 3px; font-family: 'Outfit', sans-serif; letter-spacing: -.02em; }
-        .kpi-label { font-size: 11.5px; font-weight: 500; color: var(--st300); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
+        .kpi-num   { font-size: 2.3rem; font-weight: 700; color: var(--s800); line-height: 1; margin-bottom: 3px; font-family: 'Outfit', sans-serif; letter-spacing: -.02em; }
+        .kpi-label { font-size: 1.15rem; font-weight: 500; color: var(--st300); margin-bottom: 8px; text-transform: uppercase; letter-spacing: .05em; }
 
         .kpi-trend {
             display: inline-flex;
             align-items: center;
             gap: 4px;
-            font-size: 10.5px;
+            font-size: 1.05rem;
             font-weight: 700;
             padding: 3px 9px;
             border-radius: 20px;
@@ -537,7 +539,7 @@ $ua->close();
             width: 30px; height: 30px;
             border-radius: 8px;
             display: flex; align-items: center; justify-content: center;
-            font-size: 13px;
+            font-size: 1.3rem;
         }
 
         .shi-green  { background: linear-gradient(135deg, #C4D9B4, #9DC07E); color: var(--s700); }
@@ -550,7 +552,7 @@ $ua->close();
 
         .section-header h5 {
             font-family: 'Outfit', sans-serif;
-            font-size: 13px;
+            font-size: 1.3rem;
             font-weight: 600;
             color: var(--s800);
             letter-spacing: -.01em;
@@ -558,7 +560,7 @@ $ua->close();
         }
 
         .section-header a {
-            font-size: 11px;
+            font-size: 1.75rem;
             color: var(--s400);
             font-weight: 600;
             text-decoration: none;
@@ -572,7 +574,7 @@ $ua->close();
             background: var(--s100);
             color: var(--s600);
             border-radius: 20px;
-            font-size: 9.5px;
+            font-size: 1.65rem;
             font-weight: 700;
             padding: 2px 8px;
             letter-spacing: .03em;
@@ -590,7 +592,7 @@ $ua->close();
 
         .section-footer a {
             color: var(--s400);
-            font-size: 11.5px;
+            font-size: 1.15rem;
             font-weight: 600;
             text-decoration: none;
             font-family: 'Outfit', sans-serif;
@@ -625,22 +627,22 @@ $ua->close();
             width: 38px; height: 38px; border-radius: 10px;
             background: rgba(255,255,255,.15);
             display: flex; align-items: center; justify-content: center;
-            font-size: 17px; color: white;
+            font-size: 1.55rem; color: white;
         }
 
         .hero-header h3 {
             font-family: 'Cormorant Garamond', serif;
-            font-size: 17px; font-weight: 500; color: white; margin: 0;
+            font-size: 1.55rem; font-weight: 500; color: white; margin: 0;
         }
 
-        .hero-header p { color: rgba(255,255,255,.6); font-size: 11px; margin: 0; }
+        .hero-header p { color: rgba(255,255,255,.6); font-size: 1.75rem; margin: 0; }
 
         .hero-date-badge {
             background: rgba(255,255,255,.15);
             border: 1px solid rgba(255,255,255,.2);
             border-radius: 20px;
             padding: 5px 13px;
-            font-size: 10.5px;
+            font-size: 1.05rem;
             font-weight: 600;
             color: rgba(255,255,255,.85);
             display: flex; align-items: center; gap: 5px;
@@ -664,11 +666,11 @@ $ua->close();
         .health-metric:last-child { border-right: none; }
         .health-metric:hover { background: var(--s50); }
 
-        .metric-label { font-size: 9.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--st300); margin-bottom: 6px; }
-        .metric-value { font-size: 22px; font-weight: 700; color: var(--s800); line-height: 1; margin-bottom: 2px; font-family: 'Outfit', sans-serif; letter-spacing: -.02em; }
-        .metric-unit  { font-size: 10px; color: var(--st300); margin-bottom: 6px; }
+        .metric-label { font-size: 1.65rem; font-weight: 600; text-transform: uppercase; letter-spacing: .08em; color: var(--st300); margin-bottom: 6px; }
+        .metric-value { font-size: 1.9rem; font-weight: 700; color: var(--s800); line-height: 1; margin-bottom: 2px; font-family: 'Outfit', sans-serif; letter-spacing: -.02em; }
+        .metric-unit  { font-size: 1.65rem; color: var(--st300); margin-bottom: 6px; }
 
-        .metric-flag { display: inline-block; font-size: 9.5px; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
+        .metric-flag { display: inline-block; font-size: 1.65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; }
         .flag-ok     { background: #DDEFD8; color: #3A6830; }
         .flag-high   { background: #F5DADA; color: #6A2020; }
         .flag-low    { background: #DAE8F5; color: #1A4870; }
@@ -677,7 +679,7 @@ $ua->close();
             padding: 10px 18px;
             border-top: 1px solid var(--s50);
             text-align: center;
-            font-size: 11px;
+            font-size: 1.75rem;
             color: var(--st300);
         }
 
@@ -686,8 +688,8 @@ $ua->close();
 
         /* Empty state */
         .empty-state { text-align: center; padding: 32px 20px; color: var(--st300); }
-        .empty-state i { font-size: 2rem; color: var(--s200); margin-bottom: 10px; display: block; }
-        .empty-state p { font-size: 12.5px; margin: 0; color: var(--st500); }
+        .empty-state i { font-size: 2.8rem; color: var(--s200); margin-bottom: 10px; display: block; }
+        .empty-state p { font-size: 1.25rem; margin: 0; color: var(--st500); }
 
         /* ── Routine items ───────────────────────────────────── */
         .routine-item {
@@ -701,7 +703,7 @@ $ua->close();
         .routine-item:last-child { border-bottom: none; padding-bottom: 0; }
 
         .routine-time-col { width: 52px; flex-shrink: 0; text-align: right; padding-top: 2px; }
-        .routine-time  { font-size: 11px; font-weight: 700; color: var(--s500); font-family: 'Outfit', sans-serif; }
+        .routine-time  { font-size: 1.75rem; font-weight: 700; color: var(--s500); font-family: 'Outfit', sans-serif; }
 
         .routine-dot-col {
             display: flex; flex-direction: column; align-items: center;
@@ -721,14 +723,14 @@ $ua->close();
         .rline { width: 1px; height: 24px; background: var(--s100); }
 
         .routine-info { flex: 1; }
-        .routine-title { font-size: 12.5px; font-weight: 600; color: var(--s800); margin-bottom: 2px; }
-        .routine-desc  { font-size: 10.5px; color: var(--st300); margin-bottom: 0; }
-        .routine-with  { font-size: 10px; color: var(--st300); }
+        .routine-title { font-size: 1.25rem; font-weight: 600; color: var(--s800); margin-bottom: 2px; }
+        .routine-desc  { font-size: 1.05rem; color: var(--st300); margin-bottom: 0; }
+        .routine-with  { font-size: 1.65rem; color: var(--st300); }
 
         .status-badge {
             flex-shrink: 0;
             display: inline-block;
-            font-size: 9.5px;
+            font-size: 1.65rem;
             font-weight: 700;
             padding: 2px 9px;
             border-radius: 20px;
@@ -756,7 +758,7 @@ $ua->close();
             width: 34px; height: 34px; border-radius: 9px;
             flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+            font-size: 2.8rem;
         }
 
         .mpi-1 { background: linear-gradient(135deg, #F0E0B0, #D4B04A); color: #6A4A0A; }
@@ -764,16 +766,16 @@ $ua->close();
         .mpi-3 { background: linear-gradient(135deg, #F0C8D8, #D47A9A); color: #6A1A3A; }
 
         .medication-info { flex: 1; }
-        .medication-name { font-size: 12.5px; font-weight: 600; color: var(--s800); margin-bottom: 1px; }
-        .medication-dose { font-size: 10.5px; color: var(--st300); }
+        .medication-name { font-size: 1.25rem; font-weight: 600; color: var(--s800); margin-bottom: 1px; }
+        .medication-dose { font-size: 1.05rem; color: var(--st300); }
 
         .medication-time-col { text-align: right; }
-        .medication-time { font-size: 12px; font-weight: 700; color: var(--s600); font-family: 'Outfit', sans-serif; display: block; }
+        .medication-time { font-size: 1.2rem; font-weight: 700; color: var(--s600); font-family: 'Outfit', sans-serif; display: block; }
 
         .btn-mark-taken {
             margin-top: 3px;
             display: inline-block;
-            font-size: 9px; font-weight: 700;
+            font-size: 1.65rem; font-weight: 700;
             padding: 2px 9px; border-radius: 20px;
             border: none; cursor: pointer;
             font-family: 'Outfit', sans-serif;
@@ -813,20 +815,20 @@ $ua->close();
         @keyframes alertpulsew { 0%,100%{box-shadow:0 0 0 0 rgba(212,168,83,.4)}50%{box-shadow:0 0 0 4px rgba(212,168,83,0)} }
 
         .alert-body { flex: 1; }
-        .alert-type-tag { font-size: 9px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 3px; }
+        .alert-type-tag { font-size: 1.65rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; margin-bottom: 3px; }
         .att-critical { color: #8B3A3A; }
         .att-warning  { color: #A06B2A; }
         .att-health_warning { color: var(--s500); }
         .att-general  { color: var(--st300); }
 
-        .alert-msg  { font-size: 12px; font-weight: 500; color: var(--s800); line-height: 1.4; }
-        .alert-meta { font-size: 10px; color: var(--st300); margin-top: 2px; }
+        .alert-msg  { font-size: 1.2rem; font-weight: 500; color: var(--s800); line-height: 1.4; }
+        .alert-meta { font-size: 1.65rem; color: var(--st300); margin-top: 2px; }
 
         .alert-type-chip {
             display: inline-block;
             padding: 1px 7px;
             border-radius: 10px;
-            font-size: 9px;
+            font-size: 1.65rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .04em;
@@ -855,16 +857,16 @@ $ua->close();
             border: 1px solid var(--s100);
         }
 
-        .adb-month { font-size: 8.5px; font-weight: 700; color: var(--s400); text-transform: uppercase; letter-spacing: .06em; }
-        .adb-day   { font-size: 18px; font-weight: 700; color: var(--s700); line-height: 1; font-family: 'Outfit', sans-serif; }
+        .adb-month { font-size: 1.65rem; font-weight: 700; color: var(--s400); text-transform: uppercase; letter-spacing: .06em; }
+        .adb-day   { font-size: 1.65rem; font-weight: 700; color: var(--s700); line-height: 1; font-family: 'Outfit', sans-serif; }
 
         .appt-info { flex: 1; }
-        .appt-title { font-size: 12.5px; font-weight: 600; color: var(--s800); margin-bottom: 2px; }
-        .appt-meta  { font-size: 10.5px; color: var(--st300); }
+        .appt-title { font-size: 1.25rem; font-weight: 600; color: var(--s800); margin-bottom: 2px; }
+        .appt-meta  { font-size: 1.05rem; color: var(--st300); }
 
-        .badge-scheduled { background: var(--s100); color: var(--s600); padding: 2px 9px; border-radius: 10px; font-size: 9.5px; font-weight: 700; }
-        .badge-completed { background: #DDEFD8; color: #3A6830; padding: 2px 9px; border-radius: 10px; font-size: 9.5px; font-weight: 700; }
-        .badge-cancelled { background: #F5DADA; color: #6A2020; padding: 2px 9px; border-radius: 10px; font-size: 9.5px; font-weight: 700; }
+        .badge-scheduled { background: var(--s100); color: var(--s600); padding: 2px 9px; border-radius: 10px; font-size: 1.65rem; font-weight: 700; }
+        .badge-completed { background: #DDEFD8; color: #3A6830; padding: 2px 9px; border-radius: 10px; font-size: 1.65rem; font-weight: 700; }
+        .badge-cancelled { background: #F5DADA; color: #6A2020; padding: 2px 9px; border-radius: 10px; font-size: 1.65rem; font-weight: 700; }
 
         /* ── Wellness tips ───────────────────────────────────── */
         .wellness-item {
@@ -878,11 +880,11 @@ $ua->close();
             width: 32px; height: 32px; border-radius: 9px;
             flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+            font-size: 2.8rem;
             background: linear-gradient(135deg, var(--s100), var(--s200));
         }
 
-        .wellness-text { flex: 1; font-size: 12px; font-weight: 500; color: var(--s700); padding-top: 7px; line-height: 1.35; }
+        .wellness-text { flex: 1; font-size: 1.2rem; font-weight: 500; color: var(--s700); padding-top: 7px; line-height: 1.35; }
 
         /* ── Quick action buttons ────────────────────────────── */
         .qa-btn {
@@ -909,16 +911,16 @@ $ua->close();
             width: 36px; height: 36px; border-radius: 10px;
             flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            font-size: 14px;
+            font-size: 2.8rem;
         }
 
         .qai-green  { background: linear-gradient(135deg, var(--s200), var(--s400)); color: var(--s800); }
         .qai-sky    { background: linear-gradient(135deg, #BFD9F0, #6FA8D4); color: #1A4870; }
         .qai-amber  { background: linear-gradient(135deg, #F0E0B0, #C8943A); color: #5A3808; }
 
-        .qa-label    { font-size: 12.5px; font-weight: 600; color: var(--s800); }
-        .qa-desc     { font-size: 10.5px; color: var(--st300); }
-        .qa-arrow    { margin-left: auto; color: var(--s300); font-size: 10px; }
+        .qa-label    { font-size: 1.25rem; font-weight: 600; color: var(--s800); }
+        .qa-desc     { font-size: 1.05rem; color: var(--st300); }
+        .qa-arrow    { margin-left: auto; color: var(--s300); font-size: 1.65rem; }
 
         /* Medical conditions note */
         .medical-note {
@@ -927,7 +929,7 @@ $ua->close();
             border-radius: var(--radius-sm);
             padding: 10px 13px;
             margin-top: 10px;
-            font-size: 11.5px;
+            font-size: 1.15rem;
             color: #7A5010;
             font-weight: 500;
             line-height: 1.5;
@@ -942,7 +944,7 @@ $ua->close();
         .action-fab {
             width: 50px; height: 50px; border-radius: 50%; border: none;
             background: linear-gradient(135deg, var(--s400), var(--s600));
-            color: white; font-size: 1.1rem;
+            color: white; font-size: 1.75rem;
             cursor: pointer; box-shadow: 0 4px 16px rgba(74,110,48,.35);
             transition: all .3s; display: flex; align-items: center; justify-content: center;
         }
@@ -958,7 +960,7 @@ $ua->close();
 
         .fab-badge {
             position: absolute; top: -3px; right: -3px;
-            background: #8B3A3A; color: white; font-size: .6rem; font-weight: 800;
+            background: #8B3A3A; color: white; font-size: 1.65rem; font-weight: 800;
             width: 17px; height: 17px; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             border: 2px solid white;
@@ -1023,7 +1025,68 @@ $ua->close();
             .kpi-grid { grid-template-columns: repeat(2, 1fr); }
             .health-metrics-grid { grid-template-columns: repeat(2, 1fr); }
         }
-    </style>
+    
+        /* ── Accessibility button ──────────────────────────── */
+        .acc-btn {
+            background: linear-gradient(135deg, var(--s400, #7AA658), var(--s700, #365220));
+            color: white; border: none; border-radius: 10px;
+            padding: 9px 16px; font-size: 1rem; font-weight: 700;
+            font-family: 'Outfit', sans-serif; cursor: pointer;
+            transition: transform .18s, box-shadow .18s; display: inline-flex;
+            align-items: center; gap: 6px;
+        }
+        .acc-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(94,138,64,.35); }
+
+        /* ── High contrast mode ────────────────────────────── */
+        .high-contrast,
+        .high-contrast .content { background: #000 !important; background-image: none !important; }
+        .high-contrast .sidebar,
+        .high-contrast .section-card,
+        .high-contrast .topbar,
+        .high-contrast .card,
+        .high-contrast .panel,
+        .high-contrast .hero-card,
+        .high-contrast .kpi-card { background: #111 !important; border-color: #444 !important; }
+        .high-contrast h1,.high-contrast h2,.high-contrast h3,
+        .high-contrast h4,.high-contrast h5,.high-contrast h6,
+        .high-contrast p, .high-contrast span, .high-contrast td,
+        .high-contrast th, .high-contrast li, .high-contrast div,
+        .high-contrast label, .high-contrast a { color: #fff !important; }
+        .high-contrast .section-header,
+        .high-contrast .panel-header { background: #1a2a10 !important; }
+
+        /* ── Elder base font (larger than caregiver/admin) ─────────── */
+        html { font-size: 12px; }
+        body { font-size: 1rem; line-height: 1.65; }
+
+        /* ── Accessibility buttons ─────────────────────────────────── */
+        .acc-btn {
+            background: linear-gradient(135deg, #4A6E30, #243816);
+            color: white !important; border: none;
+            border-radius: 10px; padding: 8px 15px;
+            font-size: 14px !important; font-weight: 700;
+            font-family: 'Outfit', sans-serif;
+            cursor: pointer; transition: all .2s;
+            display: inline-flex; align-items: center; gap: 6px;
+            text-decoration: none;
+        }
+        .acc-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 14px rgba(36,56,22,.35); }
+
+        /* ── High contrast mode ────────────────────────────────────── */
+        body.high-contrast { background: #000 !important; background-image: none !important; }
+        body.high-contrast .content { background: #000 !important; }
+        body.high-contrast .sidebar { background: #111 !important; }
+        body.high-contrast .topbar,
+        body.high-contrast .section-card,
+        body.high-contrast .panel,
+        body.high-contrast .section-header,
+        body.high-contrast .panel-header { background: #1a1a1a !important; border-color: #555 !important; }
+        body.high-contrast h1,body.high-contrast h2,body.high-contrast h3,
+        body.high-contrast h4,body.high-contrast h5,body.high-contrast h6,
+        body.high-contrast p,body.high-contrast td,body.high-contrast th,
+        body.high-contrast label { color: #fff !important; }
+
+        </style>
 </head>
 <body>
 
@@ -1194,7 +1257,7 @@ $ua->close();
             <div class="health-metrics-grid">
                 <div class="health-metric">
                     <div class="metric-label">Blood Pressure</div>
-                    <div class="metric-value" style="font-size:18px;"><?= $bp_sys ?>/<?= $bp_dia ?></div>
+                    <div class="metric-value" style="font-size:0.82rem;"><?= $bp_sys ?>/<?= $bp_dia ?></div>
                     <div class="metric-unit">mmHg</div>
                     <span class="metric-flag <?= $bp_flag ?>"><?= $bp_label ?></span>
                 </div>
@@ -1465,7 +1528,7 @@ $ua->close();
                             <div class="qa-label">
                                 Send Message
                                 <?php if ($unread_messages > 0): ?>
-                                    <span style="background:#F5DADA;color:#6A2020;padding:1px 7px;border-radius:20px;font-size:9px;font-weight:700;margin-left:5px;"><?= $unread_messages ?> new</span>
+                                    <span style="background:#F5DADA;color:#6A2020;padding:1px 7px;border-radius:20px;font-size:0.41rem;font-weight:700;margin-left:5px;"><?= $unread_messages ?> new</span>
                                 <?php endif; ?>
                             </div>
                             <div class="qa-desc">Message your care team</div>
@@ -1510,101 +1573,117 @@ $ua->close();
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+
+
+
 <script>
-    const DEFAULT_FONT_SIZE = 14;
-    let fontSize = parseInt(localStorage.getItem('elderFontSize')) || DEFAULT_FONT_SIZE;
-    document.body.style.fontSize = fontSize + 'px';
+/* ═══ ELDER ACCESSIBILITY — font scaling + high contrast ═══
+   Base: 20px (larger than caregiver/admin 15px).
+   Range: 16–28px in 2px steps. Shared via localStorage. */
+(function() {
+    var BASE = 12, MIN = 10, MAX = 18;
+    var sz = parseInt(localStorage.getItem('elderFontSize')) || BASE;
+    if (isNaN(sz) || sz < MIN || sz > MAX) sz = BASE;
+    document.documentElement.style.fontSize = sz + 'px';
 
-    function increaseFontSize() {
-        if (fontSize < 26) { fontSize += 2; applyFontSize(); showToast('Text size increased'); }
+    function save(v) {
+        sz = v;
+        document.documentElement.style.fontSize = sz + 'px';
+        localStorage.setItem('elderFontSize', String(sz));
     }
-
-    function decreaseFontSize() {
-        if (fontSize > 10) { fontSize -= 2; applyFontSize(); showToast('Text size decreased'); }
+    function toast(msg) {
+        var old = document.getElementById('_acc_t');
+        if (old) old.remove();
+        var d = document.createElement('div');
+        d.id = '_acc_t';
+        d.style.cssText = 'position:fixed;bottom:28px;right:22px;z-index:99999;pointer-events:none;';
+        d.innerHTML = '<div style="background:rgba(36,56,22,.96);color:#fff;padding:12px 20px;'
+            + 'border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.28);'
+            + 'font-weight:700;font-family:Outfit,sans-serif;font-size:16px;">' + msg + '</div>';
+        document.body.appendChild(d);
+        setTimeout(function() { if (d && d.parentNode) d.remove(); }, 2500);
     }
-
-    function resetFontSize() {
-        fontSize = DEFAULT_FONT_SIZE;
-        applyFontSize();
-        showToast('Text size reset to default');
-    }
-
-    function applyFontSize() {
-        document.body.style.fontSize = fontSize + 'px';
-        localStorage.setItem('elderFontSize', fontSize);
-    }
-
-    function toggleHighContrast() {
+    window.increaseFontSize = function() {
+        if (sz < MAX) { save(sz + 2); toast('Text enlarged (' + sz + 'px)'); }
+        else toast('Maximum size reached');
+    };
+    window.decreaseFontSize = function() {
+        if (sz > MIN) { save(sz - 2); toast('Text reduced (' + sz + 'px)'); }
+        else toast('Minimum size reached');
+    };
+    window.resetFontSize = function() {
+        save(BASE); toast('Text size reset');
+    };
+    window.toggleHighContrast = function() {
         document.body.classList.toggle('high-contrast');
-        const on = document.body.classList.contains('high-contrast');
-        localStorage.setItem('elderHighContrast', on);
-        showToast(on ? 'High contrast enabled' : 'High contrast disabled');
-    }
+        var on = document.body.classList.contains('high-contrast');
+        localStorage.setItem('elderHighContrast', on ? 'true' : 'false');
+        toast(on ? 'High contrast on' : 'High contrast off');
+    };
 
-    function speakPage() {
-        if ('speechSynthesis' in window) {
+    /* ── Emergency Call ─────────────────────────────────────── */
+    window.callEmergency = function() {
+        var contact = '<?= addslashes($resident_info['emergency_contact'] ?? '') ?>';
+        if (!contact || contact === 'Not set' || contact.trim() === '') {
+            toast('⚠️ No emergency contact set');
+            return;
+        }
+        // Confirm before dialling
+        var confirmed = confirm('📞 Call emergency contact?\n\n' + contact + '\n\nTap OK to call now.');
+        if (confirmed) {
+            window.location.href = 'tel:' + contact.replace(/[^0-9+]/g, '');
+        }
+    };
+
+    /* ── Read Page Aloud (Web Speech API) ───────────────────── */
+    var _speaking = false;
+    window.speakPage = function() {
+        if (!('speechSynthesis' in window)) {
+            toast('⚠️ Text-to-speech not supported in this browser');
+            return;
+        }
+        if (_speaking) {
             window.speechSynthesis.cancel();
-            const text = `Good day, <?= addslashes($user_name) ?>. Here is your health summary for today. `
-                + `You have <?= count($today_medications) ?> medications today, <?= $meds_taken ?> taken. `
-                + `You have <?= count($today_routines) ?> routines scheduled, <?= $routines_done ?> completed. `
-                + `<?= $unread_messages > 0 ? "You have {$unread_messages} unread messages." : '' ?> `
-                + `<?= $unresolved_count > 0 ? "You have {$unresolved_count} active health alerts." : 'No active health alerts.' ?> `
-                + `Have a wonderful day!`;
-            const s = new SpeechSynthesisUtterance(text);
-            s.rate = 0.9; s.pitch = 1;
-            window.speechSynthesis.speak(s);
-            showToast('Reading your dashboard summary…');
-        } else {
-            showToast('Text-to-speech not supported in this browser');
+            _speaking = false;
+            toast('🔇 Reading stopped');
+            return;
         }
-    }
+        // Collect readable text: greeting + KPI cards + key sections
+        var parts = [];
+        var greeting = document.querySelector('.hero-header h1, .topbar h4, h1, h4');
+        if (greeting) parts.push(greeting.innerText);
 
-    function callCaregiver() { showToast('Calling your assigned caregiver…'); }
-    function requestHelp()   { showToast('Help request sent to your care team!'); }
+        // KPI values and labels
+        document.querySelectorAll('.kpi-num, .kpi-label, .metric-value, .metric-label').forEach(function(el) {
+            parts.push(el.innerText);
+        });
 
-    function callEmergency() {
-        if (confirm('Are you sure you want to make an emergency call?')) {
-            showToast('Connecting to emergency services…');
-        }
-    }
+        // Section headings and key content
+        document.querySelectorAll('.section-title, .card-title, .medication-name, .appt-title, .routine-title, .alert-msg').forEach(function(el) {
+            parts.push(el.innerText);
+        });
 
-    function showMoreTips() {
-        const tips = [
-            "List 3 things you are grateful for today",
-            "Stay connected with family and friends",
-            "Enjoy a balanced diet with plenty of fruits and vegetables",
-            "Listen to calming music or nature sounds",
-            "Keep your mind active with puzzles or reading",
-            "Sit by a window and enjoy some sunlight",
-            "Take a few slow, deep breaths whenever you feel anxious"
-        ];
-        showToast('💡 ' + tips[Math.floor(Math.random() * tips.length)]);
-    }
+        var text = parts.join('. ').replace(/\s+/g, ' ').trim();
+        if (!text) text = document.body.innerText.substring(0, 800);
 
-    function showToast(message) {
-        const ex = document.getElementById('scg-toast');
-        if (ex) ex.remove();
-        const t = document.createElement('div');
-        t.id = 'scg-toast';
-        t.style.cssText = 'position:fixed;bottom:90px;right:22px;z-index:9999;max-width:300px;';
-        t.innerHTML = `<div style="background:rgba(36,56,22,.95);color:rgba(255,255,255,.9);padding:12px 18px;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.2);font-weight:600;font-family:Outfit,sans-serif;font-size:.88rem;line-height:1.4;">${message}</div>`;
-        document.body.appendChild(t);
-        setTimeout(() => { if (t.parentNode) t.remove(); }, 3000);
-    }
+        var utt = new SpeechSynthesisUtterance(text);
+        utt.lang = 'en-US';
+        utt.rate = 0.88;
+        utt.pitch = 1;
+        utt.onstart = function() { _speaking = true; toast('🔊 Reading page aloud… (tap Read to stop)'); };
+        utt.onend = function() { _speaking = false; };
+        utt.onerror = function() { _speaking = false; };
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utt);
+    };
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const sf = localStorage.getItem('elderFontSize');
-        const hc = localStorage.getItem('elderHighContrast');
-        if (sf) { fontSize = parseInt(sf); document.body.style.fontSize = fontSize + 'px'; }
-        if (hc === 'true') document.body.classList.add('high-contrast');
-        if (!localStorage.getItem('elderFirstVisit')) {
-            setTimeout(speakPage, 1200);
-            localStorage.setItem('elderFirstVisit', 'true');
-        }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.style.fontSize = sz + 'px';
+        if (localStorage.getItem('elderHighContrast') === 'true')
+            document.body.classList.add('high-contrast');
     });
-
-    // Auto-refresh every 5 minutes
-    setTimeout(() => location.reload(), 300000);
+})();
 </script>
 </body>
 </html>

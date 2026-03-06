@@ -304,6 +304,46 @@ function apt_cfg(array $cfg, string $status): array {
         }
         .topbar h4 { font-size: 26px; font-weight: 500; color: var(--s800); margin-bottom: 3px; }
         .topbar p  { font-size: 15px; color: var(--st300); margin: 0; }
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+          flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        .date-chip {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--s600);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .topbar-btn {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: var(--radius-sm);
+            padding: 7px 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--st500);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: var(--shadow-soft);
+            transition: all .2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .topbar-btn:hover { background: var(--s50); border-color: var(--s200); color: var(--s600); }
         .btn-print {
             background: linear-gradient(135deg, var(--s400), var(--s600));
             border: none; border-radius: var(--radius-sm); color: white;
@@ -648,6 +688,12 @@ function apt_cfg(array $cfg, string $status): array {
             <h4><i class="fas fa-calendar-days me-2" style="font-size:22px;color:var(--s500);"></i>My Appointments</h4>
             <p><i class="fas fa-calendar me-1"></i>View and track your scheduled appointments</p>
         </div>
+        <div class="topbar-actions">
+            <button class="topbar-btn" onclick="increaseFontSize()"><i class="fas fa-search-plus"></i>Larger</button>
+            <button class="topbar-btn" onclick="decreaseFontSize()"><i class="fas fa-search-minus"></i>Smaller</button>
+            <button class="topbar-btn" onclick="resetFontSize()"><i class="fas fa-redo"></i>Reset</button>
+            <button class="topbar-btn" onclick="toggleHighContrast()"><i class="fas fa-adjust"></i>Contrast</button>
+        </div>
         <button class="btn-print" onclick="window.print()">
             <i class="fas fa-print"></i>Print
         </button>
@@ -954,16 +1000,62 @@ function apt_cfg(array $cfg, string $status): array {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-document.addEventListener('DOMContentLoaded', () => {
-    const jump = new URLSearchParams(location.search).get('jump');
-    if (jump) {
-        document.querySelectorAll('.divider-label').forEach(el => {
-            if (el.textContent.includes(new Date(jump + 'T00:00:00').toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'}))) {
-                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        });
+    (function() {
+    var BASE = 12, MIN = 10, MAX = 18;
+    var sz = parseInt(localStorage.getItem('elderFontSize')) || BASE;
+    if (isNaN(sz) || sz < MIN || sz > MAX) sz = BASE;
+    document.documentElement.style.fontSize = sz + 'px';
+
+    function save(v) {
+        sz = v;
+        document.documentElement.style.fontSize = sz + 'px';
+        localStorage.setItem('elderFontSize', String(sz));
     }
-});
+    function toast(msg) {
+        var old = document.getElementById('_acc_t');
+        if (old) old.remove();
+        var d = document.createElement('div');
+        d.id = '_acc_t';
+        d.style.cssText = 'position:fixed;bottom:28px;right:22px;z-index:99999;pointer-events:none;';
+        d.innerHTML = '<div style="background:rgba(36,56,22,.96);color:#fff;padding:12px 20px;'
+            + 'border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.28);'
+            + 'font-weight:700;font-family:Outfit,sans-serif;font-size:16px;">' + msg + '</div>';
+        document.body.appendChild(d);
+        setTimeout(function() { if (d && d.parentNode) d.remove(); }, 2500);
+    }
+    window.increaseFontSize = function() {
+        if (sz < MAX) { save(sz + 2); toast('Text enlarged (' + sz + 'px)'); }
+        else toast('Maximum size reached');
+    };
+    window.decreaseFontSize = function() {
+        if (sz > MIN) { save(sz - 2); toast('Text reduced (' + sz + 'px)'); }
+        else toast('Minimum size reached');
+    };
+    window.resetFontSize = function() {
+        save(BASE); toast('Text size reset');
+    };
+    window.toggleHighContrast = function() {
+        document.body.classList.toggle('high-contrast');
+        var on = document.body.classList.contains('high-contrast');
+        localStorage.setItem('elderHighContrast', on ? 'true' : 'false');
+        toast(on ? 'High contrast on' : 'High contrast off');
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+        const jump = new URLSearchParams(location.search).get('jump');
+        if (jump) {
+            document.querySelectorAll('.divider-label').forEach(el => {
+                if (el.textContent.includes(new Date(jump + 'T00:00:00').toLocaleDateString('en-US', {month:'long',day:'numeric',year:'numeric'}))) {
+                    el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.style.fontSize = sz + 'px';
+        if (localStorage.getItem('elderHighContrast') === 'true')
+            document.body.classList.add('high-contrast');
+    });
+})();
 </script>
 </body>
 </html>

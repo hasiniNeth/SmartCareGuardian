@@ -373,6 +373,47 @@ $completion = round(($filled / count($completion_fields)) * 100);
 
         .topbar p { font-size: 13px; color: var(--st300); margin: 0; }
 
+        .topbar-actions {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            margin-top: 4px;
+            flex-wrap: wrap;
+          flex-wrap: wrap; gap: 8px; align-items: center; }
+
+        .date-chip {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: 20px;
+            padding: 7px 14px;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--s600);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: var(--shadow-soft);
+        }
+
+        .topbar-btn {
+            background: white;
+            border: 1px solid var(--s100);
+            border-radius: var(--radius-sm);
+            padding: 7px 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            color: var(--st500);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: var(--shadow-soft);
+            transition: all .2s;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .topbar-btn:hover { background: var(--s50); border-color: var(--s200); color: var(--s600); }
+
         .logout-btn {
             background: linear-gradient(135deg, #C87A7A, #8B3A3A);
             border: none;
@@ -848,6 +889,12 @@ $completion = round(($filled / count($completion_fields)) * 100);
             <h4><i class="fas fa-user-pen me-2" style="font-size:20px;color:var(--s500);"></i>My Profile</h4>
             <p>Manage your personal and medical information</p>
         </div>
+        <div class="topbar-actions">
+            <button class="topbar-btn" onclick="increaseFontSize()"><i class="fas fa-search-plus"></i>Larger</button>
+            <button class="topbar-btn" onclick="decreaseFontSize()"><i class="fas fa-search-minus"></i>Smaller</button>
+            <button class="topbar-btn" onclick="resetFontSize()"><i class="fas fa-redo"></i>Reset</button>
+            <button class="topbar-btn" onclick="toggleHighContrast()"><i class="fas fa-adjust"></i>Contrast</button>
+        </div>
         <a href="../logout.php" class="logout-btn">
             <i class="fa-solid fa-sign-out-alt"></i>Logout
         </a>
@@ -1185,94 +1232,140 @@ $completion = round(($filled / count($completion_fields)) * 100);
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-function toggleEditMode() {
-    const vm = document.getElementById('viewMode');
-    const em = document.getElementById('editMode');
-    if (vm.style.display === 'none') {
-        vm.style.display = 'block'; em.style.display = 'none';
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    } else {
-        vm.style.display = 'none'; em.style.display = 'block';
-        window.scrollTo({ top: em.offsetTop - 120, behavior: 'smooth' });
+    function toggleEditMode() {
+        const vm = document.getElementById('viewMode');
+        const em = document.getElementById('editMode');
+        if (vm.style.display === 'none') {
+            vm.style.display = 'block'; em.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            vm.style.display = 'none'; em.style.display = 'block';
+            window.scrollTo({ top: em.offsetTop - 120, behavior: 'smooth' });
+        }
     }
-}
+    (function() {
+    var BASE = 12, MIN = 10, MAX = 18;
+    var sz = parseInt(localStorage.getItem('elderFontSize')) || BASE;
+    if (isNaN(sz) || sz < MIN || sz > MAX) sz = BASE;
+    document.documentElement.style.fontSize = sz + 'px';
 
-document.getElementById('dob').addEventListener('change', function () {
-    const dob   = new Date(this.value);
-    const today = new Date();
-    let age     = today.getFullYear() - dob.getFullYear();
-    const md    = today.getMonth() - dob.getMonth();
-    if (md < 0 || (md === 0 && today.getDate() < dob.getDate())) age--;
-    const el = document.getElementById('ageDisplay');
-    el.textContent = age >= 0 && age < 130 ? age + ' years old' : '';
-});
-
-document.getElementById('profileForm').addEventListener('submit', function (e) {
-    const phone = document.getElementById('phone').value.trim();
-    const ec    = document.getElementById('emergency_contact').value.trim();
-    const dob   = document.getElementById('dob').value;
-
-    if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
-        e.preventDefault();
-        showMsg('Please enter a valid phone number.', 'error');
-        document.getElementById('phone').focus();
-        return;
+    function save(v) {
+        sz = v;
+        document.documentElement.style.fontSize = sz + 'px';
+        localStorage.setItem('elderFontSize', String(sz));
     }
-    if (ec.length < 5) {
-        e.preventDefault();
-        showMsg('Please enter a valid emergency contact (name and phone).', 'error');
-        document.getElementById('emergency_contact').focus();
-        return;
+    function toast(msg) {
+        var old = document.getElementById('_acc_t');
+        if (old) old.remove();
+        var d = document.createElement('div');
+        d.id = '_acc_t';
+        d.style.cssText = 'position:fixed;bottom:28px;right:22px;z-index:99999;pointer-events:none;';
+        d.innerHTML = '<div style="background:rgba(36,56,22,.96);color:#fff;padding:12px 20px;'
+            + 'border-radius:14px;box-shadow:0 6px 24px rgba(0,0,0,.28);'
+            + 'font-weight:700;font-family:Outfit,sans-serif;font-size:16px;">' + msg + '</div>';
+        document.body.appendChild(d);
+        setTimeout(function() { if (d && d.parentNode) d.remove(); }, 2500);
     }
-    if (new Date(dob) > new Date()) {
-        e.preventDefault();
-        showMsg('Date of birth cannot be in the future.', 'error');
-        document.getElementById('dob').focus();
-        return;
-    }
-    const btn = document.getElementById('submitBtn');
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
-    btn.disabled = true;
-});
-
-function callEmergency() {
-    if (confirm('Are you sure you want to call your emergency contact?')) {
-        showMsg('Connecting to emergency contact...', 'info');
-    }
-}
-
-function callCaregiver() { showMsg('Calling your assigned caregiver...', 'info'); }
-
-function showMsg(text, type) {
-    const existing = document.getElementById('inline-msg');
-    if (existing) existing.remove();
-    const div = document.createElement('div');
-    div.id = 'inline-msg';
-    const colours = {
-        success: 'background:#DDEFD8;color:#243816;border:1px solid #C4D9B4;',
-        error:   'background:#FFF5F5;color:#6A2020;border:1px solid rgba(200,122,122,.35);',
-        info:    'background:#EFF7FF;color:#1A4870;border:1px solid rgba(107,170,212,.3);'
+    window.increaseFontSize = function() {
+        if (sz < MAX) { save(sz + 2); toast('Text enlarged (' + sz + 'px)'); }
+        else toast('Maximum size reached');
     };
-    div.style.cssText = `${colours[type]||colours.info}padding:14px 18px;border-radius:12px;margin-bottom:18px;font-weight:600;font-size:15px;display:flex;align-items:center;gap:9px;`;
-    div.innerHTML = `<i class="fas fa-info-circle"></i>${text}`;
-    const form = document.getElementById('profileForm');
-    form.insertAdjacentElement('beforebegin', div);
-    setTimeout(() => div.remove(), 4000);
-}
+    window.decreaseFontSize = function() {
+        if (sz > MIN) { save(sz - 2); toast('Text reduced (' + sz + 'px)'); }
+        else toast('Minimum size reached');
+    };
+    window.resetFontSize = function() {
+        save(BASE); toast('Text size reset');
+    };
+    window.toggleHighContrast = function() {
+        document.body.classList.toggle('high-contrast');
+        var on = document.body.classList.contains('high-contrast');
+        localStorage.setItem('elderHighContrast', on ? 'true' : 'false');
+        toast(on ? 'High contrast on' : 'High contrast off');
+    };
 
-document.querySelectorAll('textarea').forEach(t => {
-    t.addEventListener('input', function () {
-        this.style.height = 'auto';
-        this.style.height = this.scrollHeight + 'px';
+    document.getElementById('dob').addEventListener('change', function () {
+        const dob   = new Date(this.value);
+        const today = new Date();
+        let age     = today.getFullYear() - dob.getFullYear();
+        const md    = today.getMonth() - dob.getMonth();
+        if (md < 0 || (md === 0 && today.getDate() < dob.getDate())) age--;
+        const el = document.getElementById('ageDisplay');
+        el.textContent = age >= 0 && age < 130 ? age + ' years old' : '';
     });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
-    if (new URLSearchParams(window.location.search).has('edit')) {
-        document.getElementById('viewMode').style.display = 'none';
-        document.getElementById('editMode').style.display = 'block';
+    document.getElementById('profileForm').addEventListener('submit', function (e) {
+        const phone = document.getElementById('phone').value.trim();
+        const ec    = document.getElementById('emergency_contact').value.trim();
+        const dob   = document.getElementById('dob').value;
+
+        if (!/^[0-9+\-\s()]{7,20}$/.test(phone)) {
+            e.preventDefault();
+            showMsg('Please enter a valid phone number.', 'error');
+            document.getElementById('phone').focus();
+            return;
+        }
+        if (ec.length < 5) {
+            e.preventDefault();
+            showMsg('Please enter a valid emergency contact (name and phone).', 'error');
+            document.getElementById('emergency_contact').focus();
+            return;
+        }
+        if (new Date(dob) > new Date()) {
+            e.preventDefault();
+            showMsg('Date of birth cannot be in the future.', 'error');
+            document.getElementById('dob').focus();
+            return;
+        }
+        const btn = document.getElementById('submitBtn');
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Saving...';
+        btn.disabled = true;
+    });
+
+    function callEmergency() {
+        if (confirm('Are you sure you want to call your emergency contact?')) {
+            showMsg('Connecting to emergency contact...', 'info');
+        }
     }
-});
+
+    function callCaregiver() { showMsg('Calling your assigned caregiver...', 'info'); }
+
+    function showMsg(text, type) {
+        const existing = document.getElementById('inline-msg');
+        if (existing) existing.remove();
+        const div = document.createElement('div');
+        div.id = 'inline-msg';
+        const colours = {
+            success: 'background:#DDEFD8;color:#243816;border:1px solid #C4D9B4;',
+            error:   'background:#FFF5F5;color:#6A2020;border:1px solid rgba(200,122,122,.35);',
+            info:    'background:#EFF7FF;color:#1A4870;border:1px solid rgba(107,170,212,.3);'
+        };
+        div.style.cssText = `${colours[type]||colours.info}padding:14px 18px;border-radius:12px;margin-bottom:18px;font-weight:600;font-size:15px;display:flex;align-items:center;gap:9px;`;
+        div.innerHTML = `<i class="fas fa-info-circle"></i>${text}`;
+        const form = document.getElementById('profileForm');
+        form.insertAdjacentElement('beforebegin', div);
+        setTimeout(() => div.remove(), 4000);
+    }
+
+    document.querySelectorAll('textarea').forEach(t => {
+        t.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = this.scrollHeight + 'px';
+        });
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        if (new URLSearchParams(window.location.search).has('edit')) {
+            document.getElementById('viewMode').style.display = 'none';
+            document.getElementById('editMode').style.display = 'block';
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function() {
+        document.documentElement.style.fontSize = sz + 'px';
+        if (localStorage.getItem('elderHighContrast') === 'true')
+            document.body.classList.add('high-contrast');
+    });
+})();
 </script>
 </body>
 </html>
