@@ -41,8 +41,7 @@ if (isset($_GET['export'])) {
                 $r['oxygen_saturation'], $r['notes']
             ]);
         }
-        fclose($out);
-        exit();
+        fclose($out); exit();
     }
 
     if ($export_type === 'alerts') {
@@ -61,8 +60,7 @@ if (isset($_GET['export'])) {
         foreach ($rows as $r) {
             fputcsv($out, [$r['full_name'], $r['alert_type'], $r['alert_message'], $r['created_at'], $r['resolved']]);
         }
-        fclose($out);
-        exit();
+        fclose($out); exit();
     }
 
     if ($export_type === 'caregiver_performance') {
@@ -91,8 +89,7 @@ if (isset($_GET['export'])) {
         foreach ($rows as $r) {
             fputcsv($out, [$r['full_name'], $r['assigned'], $r['readings'], $r['completed'], $r['skipped'], $r['rate'] ?? 0]);
         }
-        fclose($out);
-        exit();
+        fclose($out); exit();
     }
 }
 
@@ -100,7 +97,6 @@ if (isset($_GET['export'])) {
 // DATA QUERIES
 // ══════════════════════════════════════════════════════════════════════════
 
-// ── Facility-wide KPIs ─────────────────────────────────────────────────────
 $total_residents  = $conn->query("SELECT COUNT(*) AS c FROM users WHERE role='resident' AND status='active'")->fetch_assoc()['c'];
 $total_caregivers = $conn->query("SELECT COUNT(*) AS c FROM users WHERE role='caregiver' AND status='active'")->fetch_assoc()['c'];
 $total_logs       = $conn->query("SELECT COUNT(*) AS c FROM health_logs WHERE logged_at >= DATE_SUB(NOW(), INTERVAL {$period} DAY)")->fetch_assoc()['c'];
@@ -109,17 +105,14 @@ $unresolved_alerts= $conn->query("SELECT COUNT(*) AS c FROM alerts WHERE resolve
 $resolved_alerts  = $conn->query("SELECT COUNT(*) AS c FROM alerts WHERE resolved=1 AND created_at >= DATE_SUB(NOW(), INTERVAL {$period} DAY)")->fetch_assoc()['c'];
 $alert_resolution_rate = $total_alerts > 0 ? round(($resolved_alerts / $total_alerts) * 100, 1) : 0;
 
-// Medication adherence
 $med_total  = $conn->query("SELECT COUNT(*) AS c FROM medications WHERE medication_date >= DATE_SUB(CURDATE(), INTERVAL {$period} DAY)")->fetch_assoc()['c'];
 $med_taken  = $conn->query("SELECT COUNT(*) AS c FROM medications WHERE taken=1 AND medication_date >= DATE_SUB(CURDATE(), INTERVAL {$period} DAY)")->fetch_assoc()['c'];
 $med_adherence = $med_total > 0 ? round(($med_taken / $med_total) * 100, 1) : 0;
 
-// Routine completion rate
 $routine_total     = $conn->query("SELECT COUNT(*) AS c FROM routine_logs WHERE log_date >= DATE_SUB(CURDATE(), INTERVAL {$period} DAY)")->fetch_assoc()['c'];
 $routine_completed = $conn->query("SELECT COUNT(*) AS c FROM routine_logs WHERE status='completed' AND log_date >= DATE_SUB(CURDATE(), INTERVAL {$period} DAY)")->fetch_assoc()['c'];
 $routine_rate      = $routine_total > 0 ? round(($routine_completed / $routine_total) * 100, 1) : 0;
 
-// ── Alert trend per day ────────────────────────────────────────────────────
 $alert_trend = $conn->query("
     SELECT DATE(created_at) AS day, COUNT(*) AS cnt
     FROM alerts
@@ -129,7 +122,6 @@ $alert_trend = $conn->query("
 $alert_days = array_column($alert_trend, 'day');
 $alert_cnts = array_column($alert_trend, 'cnt');
 
-// ── Readings per day ───────────────────────────────────────────────────────
 $readings_trend = $conn->query("
     SELECT DATE(logged_at) AS day, COUNT(*) AS cnt
     FROM health_logs
@@ -139,7 +131,6 @@ $readings_trend = $conn->query("
 $reading_days = array_column($readings_trend, 'day');
 $reading_cnts = array_column($readings_trend, 'cnt');
 
-// ── Avg vitals per day ─────────────────────────────────────────────────────
 $vitals_trend = $conn->query("
     SELECT DATE(logged_at) AS day,
            ROUND(AVG(blood_pressure_systolic),1) AS avg_sys,
@@ -156,7 +147,6 @@ $vt_sugar = array_column($vitals_trend, 'avg_sugar');
 $vt_pulse = array_column($vitals_trend, 'avg_pulse');
 $vt_o2    = array_column($vitals_trend, 'avg_o2');
 
-// ── Alert type breakdown ───────────────────────────────────────────────────
 $type_breakdown = $conn->query("
     SELECT alert_type, COUNT(*) AS cnt
     FROM alerts
@@ -166,7 +156,6 @@ $type_breakdown = $conn->query("
 $type_labels = array_column($type_breakdown, 'alert_type');
 $type_cnts   = array_column($type_breakdown, 'cnt');
 
-// ── Top residents by alert count ───────────────────────────────────────────
 $top_residents = $conn->query("
     SELECT u.full_name, COUNT(a.alert_id) AS cnt,
            SUM(CASE WHEN a.resolved=0 THEN 1 ELSE 0 END) AS unresolved
@@ -178,7 +167,6 @@ $top_residents = $conn->query("
 $top_names = array_column($top_residents, 'full_name');
 $top_cnts  = array_column($top_residents, 'cnt');
 
-// ── Caregiver Performance ─────────────────────────────────────────────────
 $caregiver_perf = $conn->query("
     SELECT u.full_name,
            COUNT(DISTINCT ca.resident_id) AS assigned_residents,
@@ -201,7 +189,6 @@ $caregiver_perf = $conn->query("
     ORDER BY readings_logged DESC
 ")->fetch_all(MYSQLI_ASSOC);
 
-// ── Routine completion trend per day ──────────────────────────────────────
 $routine_trend = $conn->query("
     SELECT log_date AS day,
            SUM(CASE WHEN status='completed' THEN 1 ELSE 0 END) AS completed,
@@ -216,7 +203,6 @@ $rt_completed = array_column($routine_trend, 'completed');
 $rt_skipped   = array_column($routine_trend, 'skipped');
 $rt_pending   = array_column($routine_trend, 'pending');
 
-// ── Medication adherence trend ────────────────────────────────────────────
 $med_trend = $conn->query("
     SELECT medication_date AS day,
            COUNT(*) AS total,
@@ -229,7 +215,6 @@ $med_days   = array_column($med_trend, 'day');
 $med_totals = array_column($med_trend, 'total');
 $med_takens = array_column($med_trend, 'taken_count');
 
-// ── Alert resolution trend ────────────────────────────────────────────────
 $res_trend = $conn->query("
     SELECT DATE(created_at) AS day,
            COUNT(*) AS total,
@@ -242,7 +227,6 @@ $res_days     = array_column($res_trend, 'day');
 $res_total    = array_column($res_trend, 'total');
 $res_resolved = array_column($res_trend, 'resolved_cnt');
 
-// ── Recent abnormal readings ───────────────────────────────────────────────
 $high_events = $conn->query("
     SELECT u.full_name, hl.logged_at,
            hl.blood_pressure_systolic, hl.blood_sugar, hl.oxygen_saturation, hl.temperature
@@ -256,7 +240,6 @@ $high_events = $conn->query("
     ORDER BY hl.logged_at DESC LIMIT 10
 ")->fetch_all(MYSQLI_ASSOC);
 
-// ── AI risk distribution ───────────────────────────────────────────────────
 $ai = new AIService();
 $ai_online = $ai->checkStatus()['success'] ?? false;
 $risk_counts = ['high'=>0,'medium'=>0,'low'=>0,'no_data'=>0];
@@ -326,171 +309,200 @@ if ($ai_online) {
     <title>Reports & Analytics - SmartCare Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Quicksand:wght@400;500;600&family=Jost:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        :root {
-            --sage-green:#87A96B; --mint-cream:#F0FFF0; --seafoam:#9FE2BF;
-            --forest-mist:#B8E0D2; --dusty-teal:#6D9B8E; --deep-emerald:#4A766E;
-            --light-sage:#E8F5E8;
-        }
-        body { font-family:'Quicksand',sans-serif; background:linear-gradient(135deg,var(--mint-cream),var(--forest-mist)); margin:0; min-height:100vh; }
-        h1,h2,h3,h4,h5 { font-family:'Playfair Display',serif; color:var(--deep-emerald); }
-        .brand-font { font-family:'Jost',sans-serif; font-weight:600; }
+/* ═══════════════════════════════════════════════════════════
+   SMARTCARE GUARDIAN — AYURVEDIC DESIGN SYSTEM
+   Reports & Analytics · Professional scale (15px base)
+═══════════════════════════════════════════════════════════ */
+:root{
+    --s50:#F2F6EF;--s100:#E3EDDB;--s200:#C4D9B4;
+    --s300:#9DC07E;--s400:#7AA658;--s500:#5E8A40;
+    --s600:#4A6E30;--s700:#365220;--s800:#243816;
+    --w50:#FDFAF5;--w100:#F7F1E5;
+    --st300:#B8B0A4;--st500:#7A7268;--st700:#4A4540;
+    --green-bg:#DDEFD8;--green-text:#3A6830;
+    --amber-bg:#FDF3DC;--amber-text:#7A5520;
+    --red-bg:#F5DADA;--red-text:#6A2020;
+    --blue-bg:#DCE8F5;--blue-text:#1A3A5C;
+    --radius-sm:8px;--radius-md:12px;--radius-lg:20px;
+    --shadow-soft:0 2px 12px rgba(36,56,22,.07),0 1px 3px rgba(36,56,22,.05);
+    --shadow-card:0 4px 24px rgba(36,56,22,.09),0 1px 4px rgba(36,56,22,.06);
+}
+*,*::before,*::after{box-sizing:border-box;}
+body{
+    font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;
+    background:var(--w50);
+    background-image:
+        radial-gradient(ellipse 70% 50% at 90% 0%,rgba(157,192,126,.09) 0%,transparent 55%),
+        radial-gradient(ellipse 50% 40% at 0% 100%,rgba(122,166,88,.06) 0%,transparent 50%);
+    color:var(--st700);min-height:100vh;margin:0;padding:0;
+}
+h1,h2,h3,h4,h5,h6{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0;}
 
-        /* ── Sidebar ── */
-        .sidebar { width:280px; height:100vh; position:fixed; background:linear-gradient(180deg,var(--sage-green),var(--dusty-teal)); color:white; box-shadow:4px 0 20px rgba(0,0,0,.1); z-index:1000; display:flex; flex-direction:column; }
-        .sidebar-header { text-align:center; padding:30px 20px 20px; border-bottom:1px solid rgba(255,255,255,.2); flex-shrink:0; }
-        .sidebar-nav { flex:1; overflow-y:auto; padding:20px 0; }
-        .sidebar-footer { flex-shrink:0; border-top:1px solid rgba(255,255,255,.2); padding:20px; }
-        .sidebar a { color:white; display:flex; align-items:center; padding:15px 25px; text-decoration:none; transition:all .3s; margin:5px 15px; border-radius:12px; font-weight:500; }
-        .sidebar a:hover { background:rgba(255,255,255,.15); transform:translateX(5px); }
-        .sidebar a.active { background:rgba(255,255,255,.25); box-shadow:0 4px 15px rgba(0,0,0,.1); }
-        .sidebar i { width:25px; margin-right:12px; font-size:1.1rem; }
+/* ── Sidebar ── */
+.sidebar{width:240px;height:100vh;position:fixed;background:var(--s800);display:flex;flex-direction:column;z-index:1000;overflow:hidden;}
+.sidebar::before{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(ellipse 120% 60% at 50% -10%,rgba(157,192,126,.18) 0%,transparent 60%),radial-gradient(ellipse 80% 80% at 110% 110%,rgba(94,138,64,.15) 0%,transparent 55%);}
+.sidebar-header{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);flex-shrink:0;position:relative;}
+.brand-mark{display:flex;align-items:center;gap:9px;margin-bottom:4px;}
+.brand-icon{width:32px;height:32px;background:linear-gradient(135deg,var(--s300),var(--s500));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:14px;color:white;box-shadow:0 3px 10px rgba(0,0,0,.25);flex-shrink:0;}
+.sidebar-header h4{font-family:'Cormorant Garamond',serif;font-size:16px;font-weight:600;color:white;line-height:1.15;}
+.sidebar-header small{font-size:10px;color:rgba(255,255,255,.4);letter-spacing:.08em;text-transform:uppercase;font-weight:500;display:block;margin-left:41px;margin-top:1px;}
+.sidebar-nav{flex:1;overflow-y:auto;padding:8px 0;position:relative;}
+.sidebar-nav::-webkit-scrollbar{width:4px;}.sidebar-nav::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px;}
+.sidebar a{display:flex;align-items:center;gap:9px;padding:10px 10px 10px 20px;color:rgba(255,255,255,.6);text-decoration:none;font-size:13.5px;font-weight:500;transition:all .2s;margin:1px 8px;border-radius:var(--radius-sm);position:relative;min-height:42px;}
+.sidebar a:hover{background:rgba(255,255,255,.10);color:white;}
+.sidebar a.active{background:rgba(157,192,126,.2);color:#C8E6A0;}
+.sidebar a.active::before{content:'';position:absolute;left:-8px;top:20%;bottom:20%;width:3px;background:var(--s300);border-radius:0 3px 3px 0;}
+.sidebar i{width:18px;text-align:center;font-size:13px;opacity:.85;flex-shrink:0;}
+.sidebar-footer{flex-shrink:0;border-top:1px solid rgba(255,255,255,.08);padding:12px 8px;position:relative;}
+.sidebar-footer a{margin:0;color:rgba(255,255,255,.5)!important;font-size:13.5px;}
+.sidebar-footer a:hover{color:rgba(255,255,255,.8)!important;}
 
-        /* ── Layout ── */
-        .content { margin-left:280px; padding:30px; min-height:100vh; }
-        .topbar { background:rgba(255,255,255,.95); backdrop-filter:blur(10px); border-radius:20px; padding:20px 30px; box-shadow:0 8px 32px rgba(0,0,0,.1); margin-bottom:28px; }
-        .logout-btn { background:linear-gradient(135deg,#ff6b6b,#ee5a52); border:none; border-radius:50px; color:white; padding:10px 25px; font-weight:600; transition:all .3s; }
-        .logout-btn:hover { transform:translateY(-2px); }
+/* ── Layout ── */
+.content{margin-left:240px;padding:24px;min-height:100vh;}
 
-        /* ── Period pills ── */
-        .period-pills { display:flex; gap:8px; margin-bottom:24px; flex-wrap:wrap; align-items:center; }
-        .period-pill { padding:8px 20px; border-radius:25px; font-weight:700; font-family:'Jost',sans-serif; font-size:.85rem; border:2px solid var(--forest-mist); color:var(--deep-emerald); background:#fff; text-decoration:none; transition:all .2s; }
-        .period-pill:hover { border-color:var(--sage-green); color:var(--sage-green); }
-        .period-pill.active { background:linear-gradient(135deg,var(--sage-green),var(--dusty-teal)); color:#fff; border-color:transparent; }
+/* ── Topbar ── */
+.topbar{background:white;border-radius:var(--radius-lg);padding:18px 24px;box-shadow:var(--shadow-card);margin-bottom:22px;border:1px solid rgba(196,217,180,.3);}
+.topbar h4{font-family:'Outfit',sans-serif;font-weight:700;font-size:18px;color:var(--s800);margin-bottom:3px;}
+.topbar p{font-size:13px;color:var(--st300);margin:0;}
+.logout-btn{background:linear-gradient(135deg,#C87A7A,#8B3A3A);border:none;border-radius:var(--radius-md);color:white;padding:9px 20px;font-weight:700;font-size:13px;font-family:'Outfit',sans-serif;transition:all .2s;cursor:pointer;}
+.logout-btn:hover{transform:translateY(-2px);box-shadow:0 5px 14px rgba(139,58,58,.35);}
 
-        /* ── Export dropdown ── */
-        .export-group { margin-left:auto; }
-        .export-btn { background:linear-gradient(135deg,var(--deep-emerald),var(--dusty-teal)); border:none; border-radius:25px; color:#fff; padding:8px 20px; font-weight:700; font-family:'Jost',sans-serif; font-size:.85rem; cursor:pointer; transition:all .2s; display:flex; align-items:center; gap:8px; }
-        .export-btn:hover { transform:translateY(-2px); box-shadow:0 6px 20px rgba(74,118,110,.35); }
-        .export-menu { border-radius:14px; border:none; box-shadow:0 12px 40px rgba(0,0,0,.15); padding:8px 0; min-width:220px; }
-        .export-menu .dropdown-item { padding:10px 18px; font-weight:600; font-size:.87rem; color:var(--deep-emerald); display:flex; align-items:center; gap:10px; }
-        .export-menu .dropdown-item:hover { background:var(--light-sage); border-radius:8px; margin:0 4px; }
-        .export-menu .dropdown-item i { width:18px; color:var(--sage-green); }
+/* ── Period pills ── */
+.period-pills{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;align-items:center;}
+.period-pill{padding:7px 18px;border-radius:var(--radius-md);font-weight:700;font-family:'Outfit',sans-serif;font-size:13px;border:2px solid var(--s100);color:var(--s700);background:white;text-decoration:none;transition:all .2s;}
+.period-pill:hover{border-color:var(--s400);color:var(--s500);}
+.period-pill.active{background:linear-gradient(135deg,var(--s500),var(--s800));color:white;border-color:transparent;box-shadow:0 4px 14px rgba(94,138,64,.3);}
 
-        /* ── KPI cards ── */
-        .kpi-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(155px,1fr)); gap:16px; margin-bottom:28px; }
-        .kpi-card { background:rgba(255,255,255,.95); border-radius:18px; padding:20px; box-shadow:0 6px 24px rgba(0,0,0,.07); text-align:center; transition:all .3s; }
-        .kpi-card:hover { transform:translateY(-3px); box-shadow:0 12px 36px rgba(0,0,0,.1); }
-        .kpi-icon { width:52px; height:52px; border-radius:14px; margin:0 auto 12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem; }
-        .ic-res   { background:linear-gradient(135deg,var(--dusty-teal),var(--deep-emerald)); color:#fff; }
-        .ic-care  { background:linear-gradient(135deg,var(--seafoam),var(--sage-green)); color:#fff; }
-        .ic-logs  { background:linear-gradient(135deg,#667eea,#764ba2); color:#fff; }
-        .ic-alerts{ background:linear-gradient(135deg,#ff6b6b,#ee5a52); color:#fff; }
-        .ic-unres { background:linear-gradient(135deg,#f59e0b,#d97706); color:#fff; }
-        .ic-ai    { background:linear-gradient(135deg,#06b6d4,#0891b2); color:#fff; }
-        .ic-med   { background:linear-gradient(135deg,#a78bfa,#7c3aed); color:#fff; }
-        .ic-routine{ background:linear-gradient(135deg,#34d399,#059669); color:#fff; }
-        .ic-resolve{ background:linear-gradient(135deg,#fb923c,#ea580c); color:#fff; }
-        .kpi-val  { font-size:1.9rem; font-weight:800; color:var(--deep-emerald); line-height:1; }
-        .kpi-lbl  { color:var(--dusty-teal); font-weight:600; font-size:.8rem; margin-top:4px; }
-        .kpi-sub  { font-size:.72rem; color:#94a3b8; margin-top:3px; }
+/* ── Export dropdown ── */
+.export-group{margin-left:auto;}
+.export-btn{background:linear-gradient(135deg,var(--s600),var(--s800));border:none;border-radius:var(--radius-md);color:white;padding:8px 18px;font-weight:700;font-family:'Outfit',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:7px;}
+.export-btn:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(74,110,48,.35);}
+.export-menu{border-radius:var(--radius-md);border:1px solid var(--s100);box-shadow:var(--shadow-card);padding:6px 0;min-width:210px;background:white;}
+.export-menu .dropdown-item{padding:9px 16px;font-weight:600;font-size:13px;color:var(--s800);display:flex;align-items:center;gap:9px;}
+.export-menu .dropdown-item:hover{background:var(--s50);border-radius:var(--radius-sm);margin:0 4px;}
+.export-menu .dropdown-item i{width:16px;color:var(--s500);font-size:13px;}
 
-        /* ── Section cards ── */
-        .section-card { background:rgba(255,255,255,.95); border-radius:20px; box-shadow:0 8px 32px rgba(0,0,0,.07); margin-bottom:24px; overflow:hidden; }
-        .section-header { background:linear-gradient(135deg,var(--sage-green),var(--dusty-teal)); color:white; padding:16px 24px; display:flex; align-items:center; justify-content:space-between; }
-        .section-header h5 { color:white; margin:0; font-size:1rem; }
-        .section-body { padding:22px; }
-        .chart-wrap     { position:relative; height:240px; }
-        .chart-wrap-sm  { position:relative; height:200px; }
-        .chart-wrap-med { position:relative; height:260px; }
+/* ── KPI cards ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;margin-bottom:24px;}
+.kpi-card{background:white;border-radius:var(--radius-lg);padding:18px;box-shadow:var(--shadow-card);border:1px solid rgba(196,217,180,.25);text-align:center;transition:transform .2s;}
+.kpi-card:hover{transform:translateY(-3px);}
+.kpi-icon{width:48px;height:48px;border-radius:var(--radius-md);margin:0 auto 11px;display:flex;align-items:center;justify-content:center;font-size:18px;}
+.ic-res    {background:linear-gradient(135deg,var(--s500),var(--s800));color:white;}
+.ic-care   {background:linear-gradient(135deg,var(--s300),var(--s600));color:white;}
+.ic-logs   {background:linear-gradient(135deg,#6B7FC8,#3A4A90);color:white;}
+.ic-alerts {background:linear-gradient(135deg,#C87070,#8B3A3A);color:white;}
+.ic-unres  {background:linear-gradient(135deg,#C89040,#7A5520);color:white;}
+.ic-ai     {background:linear-gradient(135deg,#4A90A8,#1A5A70);color:white;}
+.ic-med    {background:linear-gradient(135deg,#8B7AC8,#4A3A8B);color:white;}
+.ic-routine{background:linear-gradient(135deg,var(--s400),var(--s700));color:white;}
+.ic-resolve{background:linear-gradient(135deg,#C87A40,#8B4A1A);color:white;}
+.kpi-val{font-size:28px;font-weight:800;color:var(--s800);line-height:1;font-family:'Outfit',sans-serif;}
+.kpi-lbl{color:var(--st500);font-weight:700;font-size:12px;margin-top:3px;text-transform:uppercase;letter-spacing:.04em;}
+.kpi-sub{font-size:11px;color:var(--st300);margin-top:2px;}
 
-        /* ── AI risk legend ── */
-        .risk-legend { display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:12px; }
-        .rl-item { display:flex; align-items:center; gap:6px; font-size:.82rem; font-weight:600; }
-        .rl-dot  { width:14px; height:14px; border-radius:50%; }
+/* ── Section cards ── */
+.section-card{background:white;border-radius:var(--radius-lg);box-shadow:var(--shadow-card);margin-bottom:22px;overflow:hidden;border:1px solid rgba(196,217,180,.3);}
+.section-header{background:linear-gradient(135deg,var(--s600),var(--s800));color:white;padding:14px 22px;display:flex;align-items:center;justify-content:space-between;position:relative;overflow:hidden;}
+.section-header::before{content:'';position:absolute;inset:0;background-image:radial-gradient(ellipse 100% 80% at 100% 50%,rgba(157,192,126,.15) 0%,transparent 60%);pointer-events:none;}
+.section-header h5{color:white;margin:0;font-family:'Outfit',sans-serif;font-weight:700;font-size:14px;position:relative;}
+.section-header small{position:relative;opacity:.8;font-size:12px;}
+.section-body{padding:20px;}
+.chart-wrap    {position:relative;height:240px;}
+.chart-wrap-sm {position:relative;height:200px;}
+.chart-wrap-med{position:relative;height:260px;}
 
-        /* ── Abnormal readings table ── */
-        .table th { background:var(--light-sage); color:var(--deep-emerald); font-size:.76rem; text-transform:uppercase; letter-spacing:.04em; font-weight:700; }
-        .table td { vertical-align:middle; font-size:.87rem; }
-        .badge-abn { background:#fef2f2; color:#dc2626; border-radius:8px; padding:2px 8px; font-weight:700; font-size:.77rem; }
-        .badge-ok  { background:#edfdf4; color:#059669; border-radius:8px; padding:2px 8px; font-weight:700; font-size:.77rem; }
+/* ── AI risk legend ── */
+.risk-legend{display:flex;justify-content:center;gap:14px;flex-wrap:wrap;margin-top:12px;}
+.rl-item{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;}
+.rl-dot{width:12px;height:12px;border-radius:50%;}
 
-        /* ── Top residents horizontal bars ── */
-        .top-bar  { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
-        .top-name { font-weight:600; min-width:140px; font-size:.87rem; color:var(--deep-emerald); }
-        .top-track{ flex:1; height:10px; background:#e2e8f0; border-radius:6px; overflow:hidden; }
-        .top-fill { height:100%; background:linear-gradient(90deg,var(--sage-green),var(--dusty-teal)); border-radius:6px; transition:width 1s ease; }
-        .top-count{ font-weight:700; font-size:.87rem; color:var(--deep-emerald); min-width:30px; text-align:right; }
-        .unres-badge { background:#fef2f2; color:#dc2626; border-radius:8px; padding:1px 7px; font-size:.72rem; font-weight:700; margin-left:4px; }
+/* ── Abnormal readings table ── */
+.table th{background:var(--s50);color:var(--s700);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;border-bottom:2px solid var(--s100);}
+.table td{vertical-align:middle;font-size:13px;color:var(--st700);}
+.badge-abn{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:2px 8px;font-weight:700;font-size:12px;}
+.badge-ok {background:var(--green-bg);color:var(--green-text);border-radius:var(--radius-sm);padding:2px 8px;font-weight:700;font-size:12px;}
 
-        /* ── Caregiver performance table ── */
-        .perf-table th { background:var(--light-sage); color:var(--deep-emerald); font-size:.75rem; text-transform:uppercase; letter-spacing:.04em; font-weight:700; padding:10px 14px; }
-        .perf-table td { font-size:.86rem; padding:10px 14px; vertical-align:middle; }
-        .perf-table tr:hover td { background:#f8fffe; }
-        .rate-bar-wrap { width:100px; height:8px; background:#e2e8f0; border-radius:6px; display:inline-block; overflow:hidden; vertical-align:middle; margin-right:6px; }
-        .rate-bar-fill { height:100%; border-radius:6px; }
-        .rate-high   { background:linear-gradient(90deg,#22c55e,#16a34a); }
-        .rate-medium { background:linear-gradient(90deg,#f59e0b,#d97706); }
-        .rate-low    { background:linear-gradient(90deg,#ef4444,#dc2626); }
-        .badge-readings { background:#ede9fe; color:#7c3aed; border-radius:8px; padding:2px 9px; font-size:.77rem; font-weight:700; }
-        .badge-assigned { background:#dbeafe; color:#1d4ed8; border-radius:8px; padding:2px 9px; font-size:.77rem; font-weight:700; }
+/* ── Top residents horizontal bars ── */
+.top-bar  {display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.top-name {font-weight:600;min-width:135px;font-size:13px;color:var(--s800);}
+.top-track{flex:1;height:9px;background:var(--s100);border-radius:6px;overflow:hidden;}
+.top-fill {height:100%;background:linear-gradient(90deg,var(--s400),var(--s700));border-radius:6px;transition:width 1s ease;}
+.top-count{font-weight:700;font-size:13px;color:var(--s800);min-width:30px;text-align:right;}
+.unres-badge{background:var(--red-bg);color:var(--red-text);border-radius:var(--radius-sm);padding:1px 7px;font-size:11px;font-weight:700;margin-left:4px;}
 
-        /* ── Progress ring for adherence ── */
-        .ring-wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 0; }
-        .ring-label { font-size:1.4rem; font-weight:800; color:var(--deep-emerald); margin-top:8px; }
-        .ring-sub   { font-size:.8rem; color:var(--dusty-teal); font-weight:600; }
+/* ── Caregiver performance table ── */
+.perf-table th{background:var(--s50);color:var(--s700);font-size:11px;text-transform:uppercase;letter-spacing:.05em;font-weight:700;padding:10px 14px;border-bottom:2px solid var(--s100);}
+.perf-table td{font-size:13px;padding:10px 14px;vertical-align:middle;}
+.perf-table tbody tr:hover td{background:var(--s50);}
+.rate-bar-wrap{width:90px;height:7px;background:var(--s100);border-radius:6px;display:inline-block;overflow:hidden;vertical-align:middle;margin-right:6px;}
+.rate-bar-fill{height:100%;border-radius:6px;}
+.rate-high  {background:linear-gradient(90deg,var(--s400),var(--s700));}
+.rate-medium{background:linear-gradient(90deg,#C89040,#7A5520);}
+.rate-low   {background:linear-gradient(90deg,#C05050,#7A1A1A);}
+.badge-readings{background:#EDE9F8;color:#4A2878;border-radius:var(--radius-sm);padding:2px 9px;font-size:12px;font-weight:700;}
+.badge-assigned{background:var(--blue-bg);color:var(--blue-text);border-radius:var(--radius-sm);padding:2px 9px;font-size:12px;font-weight:700;}
 
-        /* ── Section tab nav ── */
-        .section-tabs { display:flex; gap:6px; background:var(--light-sage); border-radius:12px; padding:5px; margin-bottom:18px; }
-        .stab { padding:7px 16px; border-radius:9px; font-weight:600; font-size:.83rem; color:var(--dusty-teal); cursor:pointer; transition:all .2s; border:none; background:none; font-family:'Quicksand',sans-serif; }
-        .stab.active { background:white; color:var(--deep-emerald); box-shadow:0 2px 8px rgba(0,0,0,.08); }
+/* ── Empty state ── */
+.empty-state{text-align:center;padding:38px 20px;color:var(--st300);}
+.empty-state i{font-size:2.2rem;margin-bottom:12px;display:block;color:var(--s200);}
+.empty-state p{font-size:13px;margin:0;}
 
-        /* ── Pulse animation ── */
-        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
-        .pulse { animation:pulse 2s infinite; }
+/* ── Pulse animation ── */
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+.pulse{animation:pulse 2s infinite;}
 
-        /* ── Empty state ── */
-        .empty-state { text-align:center; padding:40px 20px; color:#94a3b8; }
-        .empty-state i { font-size:2.5rem; margin-bottom:12px; display:block; color:var(--forest-mist); }
-
-        @media(max-width:768px){
-            .sidebar{width:100%;height:auto;position:relative;}
-            .content{margin-left:0;padding:15px;}
-            .kpi-grid{grid-template-columns:repeat(2,1fr);}
-        }
+@media(max-width:768px){
+    .sidebar{width:100%;height:auto;position:relative;}
+    .content{margin-left:0;padding:15px;}
+    .kpi-grid{grid-template-columns:repeat(2,1fr);}
+}
     </style>
 </head>
 <body>
 
-<!-- ══════ SIDEBAR ══════ -->
+<!-- ══ SIDEBAR ════════════════════════════════════════════════════ -->
 <div class="sidebar">
     <div class="sidebar-header">
-        <h4 class="brand-font mb-2"><i class="fa-solid fa-shield-heart me-2"></i>SmartCare Guardian</h4>
-        <small class="opacity-75">Admin Panel</small>
+        <div class="brand-mark">
+            <div class="brand-icon"><i class="fas fa-leaf"></i></div>
+            <h4>SmartCare<br>Guardian</h4>
+        </div>
+        <small>Admin Panel</small>
     </div>
     <div class="sidebar-nav">
-        <a href="admin_dashboard.php"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
-        <a href="manage_users.php"><i class="fa-solid fa-users"></i> Manage Users</a>
-        <a href="manage_caregivers.php"><i class="fa-solid fa-hand-holding-heart"></i> Manage Caregivers</a>
-        <a href="manage_residents.php"><i class="fa-solid fa-user-group"></i> Manage Residents</a>
-        <a href="assign_caregiver.php"><i class="fa-solid fa-link"></i> Assign Caregivers</a>
-        <a href="manage_services.php"><i class="fa-solid fa-spa"></i> Manage Services</a>
-        <a href="messages.php"><i class="fa-solid fa-envelope"></i> Messages</a>
-        <a href="admin_alerts.php"><i class="fa-solid fa-bell"></i> Health Alerts</a>
-        <a href="#" class="active"><i class="fa-solid fa-chart-line"></i> Reports & Analytics</a>
+        <a href="admin_dashboard.php"><i class="fa-solid fa-gauge-high"></i>Dashboard</a>
+        <a href="manage_users.php"><i class="fa-solid fa-users"></i>Manage Users</a>
+        <a href="manage_caregivers.php"><i class="fa-solid fa-hand-holding-heart"></i>Manage Caregivers</a>
+        <a href="manage_residents.php"><i class="fa-solid fa-user-group"></i>Manage Residents</a>
+        <a href="assign_caregiver.php"><i class="fa-solid fa-link"></i>Assign Caregivers</a>
+        <a href="manage_services.php"><i class="fa-solid fa-spa"></i>Manage Services</a>
+        <a href="messages.php"><i class="fa-solid fa-envelope"></i>Messages</a>
+        <a href="admin_alerts.php"><i class="fa-solid fa-bell"></i>Health Alerts</a>
+        <a href="#" class="active"><i class="fa-solid fa-chart-line"></i>Reports & Analytics</a>
     </div>
     <div class="sidebar-footer">
-        <a href="/SmartCareGuardian/logout.php"><i class="fa-solid fa-right-from-bracket"></i> Logout</a>
+        <a href="/SmartCareGuardian/logout.php"><i class="fa-solid fa-right-from-bracket"></i>Logout</a>
     </div>
 </div>
 
-<!-- ══════ CONTENT ══════ -->
+<!-- ══ CONTENT ════════════════════════════════════════════════════ -->
 <div class="content">
 
-    <!-- Top bar -->
+    <!-- Topbar -->
     <div class="topbar d-flex justify-content-between align-items-center">
         <div>
-            <h4 class="brand-font mb-1">Reports & Analytics</h4>
-            <p class="text-muted mb-0">Facility-wide health trends, AI risk analysis &amp; performance reports</p>
+            <h4>Reports &amp; Analytics</h4>
+            <p>Facility-wide health trends, AI risk analysis &amp; performance reports</p>
         </div>
         <div class="d-flex align-items-center gap-3">
-            <span style="font-size:.83rem;">
+            <span style="font-size:13px;color:var(--st500);">
                 <?php if ($ai_online): ?>
-                    <i class="fas fa-circle pulse me-1" style="color:#22c55e;"></i>AI Online
+                    <i class="fas fa-circle pulse me-1" style="color:var(--s500);font-size:10px;"></i>AI Online
                 <?php else: ?>
-                    <i class="fas fa-circle me-1" style="color:#ef4444;"></i>AI Offline
+                    <i class="fas fa-circle me-1" style="color:var(--red-text);font-size:10px;"></i>AI Offline
                 <?php endif; ?>
             </span>
             <form action="/SmartCareGuardian/logout.php" method="POST">
@@ -505,84 +517,29 @@ if ($ai_online) {
         <a href="?period=30" class="period-pill <?= $period=='30'?'active':''; ?>">Last 30 Days</a>
         <a href="?period=90" class="period-pill <?= $period=='90'?'active':''; ?>">Last 90 Days</a>
 
-        <!-- Export dropdown -->
         <div class="export-group dropdown ms-auto">
             <button class="export-btn dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                <i class="fas fa-download"></i> Export CSV
+                <i class="fas fa-download"></i>Export CSV
             </button>
             <ul class="dropdown-menu export-menu">
-                <li>
-                    <a class="dropdown-item" href="?period=<?= $period ?>&export=health_logs">
-                        <i class="fas fa-notes-medical"></i> Health Logs Report
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="?period=<?= $period ?>&export=alerts">
-                        <i class="fas fa-bell"></i> Alerts Report
-                    </a>
-                </li>
-                <li>
-                    <a class="dropdown-item" href="?period=<?= $period ?>&export=caregiver_performance">
-                        <i class="fas fa-user-nurse"></i> Caregiver Performance Report
-                    </a>
-                </li>
+                <li><a class="dropdown-item" href="?period=<?= $period ?>&export=health_logs"><i class="fas fa-notes-medical"></i>Health Logs Report</a></li>
+                <li><a class="dropdown-item" href="?period=<?= $period ?>&export=alerts"><i class="fas fa-bell"></i>Alerts Report</a></li>
+                <li><a class="dropdown-item" href="?period=<?= $period ?>&export=caregiver_performance"><i class="fas fa-user-nurse"></i>Caregiver Performance</a></li>
             </ul>
         </div>
     </div>
 
     <!-- ══ KPI CARDS ══ -->
     <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-icon ic-res"><i class="fas fa-users"></i></div>
-            <div class="kpi-val"><?= $total_residents; ?></div>
-            <div class="kpi-lbl">Active Residents</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-care"><i class="fas fa-user-nurse"></i></div>
-            <div class="kpi-val"><?= $total_caregivers; ?></div>
-            <div class="kpi-lbl">Caregivers</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-logs"><i class="fas fa-notes-medical"></i></div>
-            <div class="kpi-val"><?= $total_logs; ?></div>
-            <div class="kpi-lbl">Readings Logged</div>
-            <div class="kpi-sub">Last <?= $period ?> days</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-alerts"><i class="fas fa-bell"></i></div>
-            <div class="kpi-val"><?= $total_alerts; ?></div>
-            <div class="kpi-lbl">Alerts Generated</div>
-            <div class="kpi-sub">Last <?= $period ?> days</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-unres"><i class="fas fa-triangle-exclamation"></i></div>
-            <div class="kpi-val"><?= $unresolved_alerts; ?></div>
-            <div class="kpi-lbl">Unresolved Alerts</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-resolve"><i class="fas fa-check-double"></i></div>
-            <div class="kpi-val"><?= $alert_resolution_rate; ?>%</div>
-            <div class="kpi-lbl">Alert Resolution Rate</div>
-            <div class="kpi-sub">Last <?= $period ?> days</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-med"><i class="fas fa-pills"></i></div>
-            <div class="kpi-val"><?= $med_adherence; ?>%</div>
-            <div class="kpi-lbl">Medication Adherence</div>
-            <div class="kpi-sub"><?= $med_taken ?>/<?= $med_total ?> taken</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-routine"><i class="fas fa-calendar-check"></i></div>
-            <div class="kpi-val"><?= $routine_rate; ?>%</div>
-            <div class="kpi-lbl">Routine Completion</div>
-            <div class="kpi-sub"><?= $routine_completed ?>/<?= $routine_total ?> done</div>
-        </div>
-        <div class="kpi-card">
-            <div class="kpi-icon ic-ai"><i class="fas fa-brain"></i></div>
-            <div class="kpi-val"><?= $risk_counts['high']; ?></div>
-            <div class="kpi-lbl">High AI Risk Today</div>
-            <div class="kpi-sub"><?= $ai_online?'AI Online':'Rule-based'; ?></div>
-        </div>
+        <div class="kpi-card"><div class="kpi-icon ic-res"><i class="fas fa-users"></i></div><div class="kpi-val"><?= $total_residents ?></div><div class="kpi-lbl">Active Residents</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-care"><i class="fas fa-user-nurse"></i></div><div class="kpi-val"><?= $total_caregivers ?></div><div class="kpi-lbl">Caregivers</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-logs"><i class="fas fa-notes-medical"></i></div><div class="kpi-val"><?= $total_logs ?></div><div class="kpi-lbl">Readings Logged</div><div class="kpi-sub">Last <?= $period ?> days</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-alerts"><i class="fas fa-bell"></i></div><div class="kpi-val"><?= $total_alerts ?></div><div class="kpi-lbl">Alerts Generated</div><div class="kpi-sub">Last <?= $period ?> days</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-unres"><i class="fas fa-triangle-exclamation"></i></div><div class="kpi-val"><?= $unresolved_alerts ?></div><div class="kpi-lbl">Unresolved Alerts</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-resolve"><i class="fas fa-check-double"></i></div><div class="kpi-val"><?= $alert_resolution_rate ?>%</div><div class="kpi-lbl">Resolution Rate</div><div class="kpi-sub">Last <?= $period ?> days</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-med"><i class="fas fa-pills"></i></div><div class="kpi-val"><?= $med_adherence ?>%</div><div class="kpi-lbl">Med. Adherence</div><div class="kpi-sub"><?= $med_taken ?>/<?= $med_total ?> taken</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-routine"><i class="fas fa-calendar-check"></i></div><div class="kpi-val"><?= $routine_rate ?>%</div><div class="kpi-lbl">Routine Completion</div><div class="kpi-sub"><?= $routine_completed ?>/<?= $routine_total ?> done</div></div>
+        <div class="kpi-card"><div class="kpi-icon ic-ai"><i class="fas fa-brain"></i></div><div class="kpi-val"><?= $risk_counts['high'] ?></div><div class="kpi-lbl">High AI Risk</div><div class="kpi-sub"><?= $ai_online?'AI Online':'Rule-based' ?></div></div>
     </div>
 
     <!-- ══ ROW 1: Alert Trend + AI Risk ══ -->
@@ -591,27 +548,26 @@ if ($ai_online) {
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-chart-line me-2"></i>Alert Trend &amp; Daily Readings</h5>
-                    <small style="opacity:.8;">Last <?= $period ?> days</small>
+                    <small>Last <?= $period ?> days</small>
                 </div>
                 <div class="section-body">
                     <div class="chart-wrap"><canvas id="trendChart"></canvas></div>
                 </div>
             </div>
         </div>
-
         <div class="col-lg-4">
             <div class="section-card h-100">
                 <div class="section-header">
                     <h5><i class="fas fa-brain me-2"></i>AI Risk Distribution</h5>
-                    <small style="opacity:.8;">Current snapshot</small>
+                    <small>Current snapshot</small>
                 </div>
                 <div class="section-body">
                     <div class="chart-wrap-sm"><canvas id="riskDonut"></canvas></div>
                     <div class="risk-legend mt-2">
-                        <div class="rl-item"><div class="rl-dot" style="background:#ef4444;"></div>High (<?= $risk_counts['high']; ?>)</div>
-                        <div class="rl-item"><div class="rl-dot" style="background:#f59e0b;"></div>Medium (<?= $risk_counts['medium']; ?>)</div>
-                        <div class="rl-item"><div class="rl-dot" style="background:#22c55e;"></div>Low (<?= $risk_counts['low']; ?>)</div>
-                        <div class="rl-item"><div class="rl-dot" style="background:#94a3b8;"></div>No Data (<?= $risk_counts['no_data']; ?>)</div>
+                        <div class="rl-item"><div class="rl-dot" style="background:#C05050;"></div>High (<?= $risk_counts['high'] ?>)</div>
+                        <div class="rl-item"><div class="rl-dot" style="background:#C89040;"></div>Medium (<?= $risk_counts['medium'] ?>)</div>
+                        <div class="rl-item"><div class="rl-dot" style="background:#5E8A40;"></div>Low (<?= $risk_counts['low'] ?>)</div>
+                        <div class="rl-item"><div class="rl-dot" style="background:#B8B0A4;"></div>No Data (<?= $risk_counts['no_data'] ?>)</div>
                     </div>
                 </div>
             </div>
@@ -624,19 +580,18 @@ if ($ai_online) {
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-check-double me-2"></i>Alert Resolution Trend</h5>
-                    <small style="opacity:.8;">Daily resolved vs total</small>
+                    <small>Daily resolved vs total</small>
                 </div>
                 <div class="section-body">
                     <div class="chart-wrap"><canvas id="resolutionChart"></canvas></div>
                 </div>
             </div>
         </div>
-
         <div class="col-lg-6">
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-pills me-2"></i>Medication Adherence Trend</h5>
-                    <small style="opacity:.8;">Daily taken vs scheduled</small>
+                    <small>Daily taken vs scheduled</small>
                 </div>
                 <div class="section-body">
                     <div class="chart-wrap"><canvas id="medChart"></canvas></div>
@@ -651,7 +606,7 @@ if ($ai_online) {
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-heartbeat me-2"></i>Facility-Wide Average Vitals Trend</h5>
-                    <small style="opacity:.8;">Daily averages across all residents</small>
+                    <small>Daily averages across all residents</small>
                 </div>
                 <div class="section-body">
                     <div class="chart-wrap-med"><canvas id="vitalsChart"></canvas></div>
@@ -666,7 +621,7 @@ if ($ai_online) {
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-calendar-check me-2"></i>Routine Completion Trend</h5>
-                    <small style="opacity:.8;">Daily completed / skipped / pending</small>
+                    <small>Daily completed / skipped / pending</small>
                 </div>
                 <div class="section-body">
                     <?php if (empty($routine_trend)): ?>
@@ -677,12 +632,11 @@ if ($ai_online) {
                 </div>
             </div>
         </div>
-
         <div class="col-lg-5">
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-chart-pie me-2"></i>Alert Type Breakdown</h5>
-                    <small style="opacity:.8;">Last <?= $period ?> days</small>
+                    <small>Last <?= $period ?> days</small>
                 </div>
                 <div class="section-body">
                     <?php if (empty($type_breakdown)): ?>
@@ -695,14 +649,13 @@ if ($ai_online) {
         </div>
     </div>
 
-    <!-- ══ ROW 4: Caregiver Performance + Top Residents ══ -->
+    <!-- ══ ROW 4: Caregiver Performance ══ -->
     <div class="row g-4 mt-0">
-        <!-- Caregiver Performance -->
         <div class="col-12">
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-user-nurse me-2"></i>Caregiver Performance Report</h5>
-                    <small style="opacity:.8;">Last <?= $period ?> days — readings, routines &amp; completion rates</small>
+                    <small>Last <?= $period ?> days — readings, routines &amp; completion rates</small>
                 </div>
                 <div class="section-body p-0">
                     <?php if (empty($caregiver_perf)): ?>
@@ -712,7 +665,7 @@ if ($ai_online) {
                         <table class="table table-hover mb-0 perf-table">
                             <thead>
                                 <tr>
-                                    <th style="padding:12px 20px;">Caregiver</th>
+                                    <th style="padding:11px 20px;">Caregiver</th>
                                     <th>Assigned Residents</th>
                                     <th>Readings Logged</th>
                                     <th>Routines Completed</th>
@@ -726,20 +679,20 @@ if ($ai_online) {
                                 $rate_class = $rate >= 70 ? 'rate-high' : ($rate >= 40 ? 'rate-medium' : 'rate-low');
                             ?>
                                 <tr>
-                                    <td style="padding:12px 20px;font-weight:700;color:var(--deep-emerald);">
-                                        <i class="fas fa-user-nurse me-2" style="color:var(--sage-green);"></i>
-                                        <?= htmlspecialchars($cp['full_name']); ?>
+                                    <td style="padding:11px 20px;font-weight:700;color:var(--s800);">
+                                        <i class="fas fa-user-nurse me-2" style="color:var(--s400);font-size:12px;"></i>
+                                        <?= htmlspecialchars($cp['full_name']) ?>
                                     </td>
-                                    <td><span class="badge-assigned"><?= $cp['assigned_residents']; ?> residents</span></td>
-                                    <td><span class="badge-readings"><?= $cp['readings_logged']; ?> logs</span></td>
-                                    <td style="color:#059669;font-weight:700;"><?= $cp['routines_completed']; ?></td>
-                                    <td style="color:#dc2626;font-weight:700;"><?= $cp['routines_skipped']; ?></td>
+                                    <td><span class="badge-assigned"><?= $cp['assigned_residents'] ?> residents</span></td>
+                                    <td><span class="badge-readings"><?= $cp['readings_logged'] ?> logs</span></td>
+                                    <td style="color:var(--green-text);font-weight:700;"><?= $cp['routines_completed'] ?></td>
+                                    <td style="color:var(--red-text);font-weight:700;"><?= $cp['routines_skipped'] ?></td>
                                     <td>
                                         <div class="d-flex align-items-center gap-2">
                                             <div class="rate-bar-wrap">
-                                                <div class="rate-bar-fill <?= $rate_class; ?>" style="width:<?= $rate; ?>%;"></div>
+                                                <div class="rate-bar-fill <?= $rate_class ?>" style="width:<?= $rate ?>%;"></div>
                                             </div>
-                                            <span style="font-weight:700;font-size:.85rem;color:var(--deep-emerald);"><?= $rate ?? 'N/A'; ?>%</span>
+                                            <span style="font-weight:700;font-size:13px;color:var(--s800);"><?= $rate ?? 'N/A' ?>%</span>
                                         </div>
                                     </td>
                                 </tr>
@@ -759,7 +712,7 @@ if ($ai_online) {
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-ranking-star me-2"></i>Top Residents by Alert Count</h5>
-                    <small style="opacity:.8;">Last <?= $period ?> days</small>
+                    <small>Last <?= $period ?> days</small>
                 </div>
                 <div class="section-body">
                     <?php if (empty($top_residents)): ?>
@@ -768,15 +721,13 @@ if ($ai_online) {
                         $max = max($top_cnts);
                         foreach ($top_residents as $tr): ?>
                         <div class="top-bar">
-                            <div class="top-name"><?= htmlspecialchars($tr['full_name']); ?></div>
+                            <div class="top-name"><?= htmlspecialchars($tr['full_name']) ?></div>
                             <div class="top-track">
-                                <div class="top-fill" style="width:<?= $max>0?round($tr['cnt']/$max*100):0; ?>%"></div>
+                                <div class="top-fill" style="width:<?= $max>0?round($tr['cnt']/$max*100):0 ?>%"></div>
                             </div>
                             <div class="top-count">
-                                <?= $tr['cnt']; ?>
-                                <?php if ($tr['unresolved'] > 0): ?>
-                                    <span class="unres-badge"><?= $tr['unresolved']; ?> open</span>
-                                <?php endif; ?>
+                                <?= $tr['cnt'] ?>
+                                <?php if ($tr['unresolved'] > 0): ?><span class="unres-badge"><?= $tr['unresolved'] ?> open</span><?php endif; ?>
                             </div>
                         </div>
                     <?php endforeach; endif; ?>
@@ -788,20 +739,20 @@ if ($ai_online) {
             <div class="section-card">
                 <div class="section-header">
                     <h5><i class="fas fa-triangle-exclamation me-2"></i>Recent Abnormal Readings</h5>
-                    <small style="opacity:.8;">Last 14 days — readings outside normal range</small>
+                    <small>Last 14 days — readings outside normal range</small>
                 </div>
                 <div class="section-body p-0">
                     <?php if (empty($high_events)): ?>
                         <div class="empty-state">
-                            <i class="fas fa-check-circle" style="color:var(--forest-mist);"></i>
-                            <p>No abnormal readings in the last 14 days. Great!</p>
+                            <i class="fas fa-check-circle" style="color:var(--s200);"></i>
+                            <p>No abnormal readings in the last 14 days.</p>
                         </div>
                     <?php else: ?>
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
                                 <thead>
                                     <tr>
-                                        <th style="padding:12px 18px;">Resident</th>
+                                        <th style="padding:11px 18px;">Resident</th>
                                         <th>Date &amp; Time</th>
                                         <th>BP Sys</th>
                                         <th>Sugar</th>
@@ -817,15 +768,15 @@ if ($ai_online) {
                                     $tmp_abn = $ev['temperature']>37.8 || $ev['temperature']<36;
                                 ?>
                                     <tr>
-                                        <td style="padding:10px 18px;font-weight:700;color:var(--deep-emerald);"><?= htmlspecialchars($ev['full_name']); ?></td>
+                                        <td style="padding:10px 18px;font-weight:700;color:var(--s800);"><?= htmlspecialchars($ev['full_name']) ?></td>
                                         <td>
-                                            <small><?= date('d M Y', strtotime($ev['logged_at'])); ?></small><br>
-                                            <small class="text-muted"><?= date('H:i', strtotime($ev['logged_at'])); ?></small>
+                                            <span style="font-size:13px;"><?= date('d M Y', strtotime($ev['logged_at'])) ?></span><br>
+                                            <span style="font-size:12px;color:var(--st300);"><?= date('H:i', strtotime($ev['logged_at'])) ?></span>
                                         </td>
-                                        <td><span class="<?= $sys_abn?'badge-abn':'badge-ok'; ?>"><?= $ev['blood_pressure_systolic']; ?></span></td>
-                                        <td><span class="<?= $sug_abn?'badge-abn':'badge-ok'; ?>"><?= $ev['blood_sugar']; ?></span></td>
-                                        <td><span class="<?= $o2_abn?'badge-abn':'badge-ok'; ?>"><?= $ev['oxygen_saturation']; ?>%</span></td>
-                                        <td><span class="<?= $tmp_abn?'badge-abn':'badge-ok'; ?>"><?= $ev['temperature']; ?>°C</span></td>
+                                        <td><span class="<?= $sys_abn?'badge-abn':'badge-ok' ?>"><?= $ev['blood_pressure_systolic'] ?></span></td>
+                                        <td><span class="<?= $sug_abn?'badge-abn':'badge-ok' ?>"><?= $ev['blood_sugar'] ?></span></td>
+                                        <td><span class="<?= $o2_abn?'badge-abn':'badge-ok' ?>"><?= $ev['oxygen_saturation'] ?>%</span></td>
+                                        <td><span class="<?= $tmp_abn?'badge-abn':'badge-ok' ?>"><?= $ev['temperature'] ?>°C</span></td>
                                     </tr>
                                 <?php endforeach; ?>
                                 </tbody>
@@ -841,56 +792,56 @@ if ($ai_online) {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-Chart.defaults.font.family = "'Quicksand', sans-serif";
+Chart.defaults.font.family = "'Outfit', sans-serif";
 Chart.defaults.font.size   = 12;
-Chart.defaults.color       = '#64748b';
+Chart.defaults.color       = '#7A7268';
 
-const gridColor    = 'rgba(0,0,0,0.05)';
+const gridColor    = 'rgba(196,217,180,0.3)';
 const tooltipStyle = {
-    backgroundColor: 'rgba(255,255,255,0.97)',
-    titleColor: '#4A766E', bodyColor: '#475569',
-    borderColor: '#B8E0D2', borderWidth: 1,
+    backgroundColor: '#243816',
+    titleColor: '#C4D9B4', bodyColor: '#E3EDDB',
+    borderColor: '#4A6E30', borderWidth: 1,
     padding: 10, cornerRadius: 10,
 };
 
-// ── 1. Alert Trend + Daily Readings ──────────────────────────────────────
+// ── 1. Alert Trend + Daily Readings ─────────────────────────────────────
 const allDays = [...new Set([
-    ...<?= json_encode($alert_days); ?>,
-    ...<?= json_encode($reading_days); ?>
+    ...<?= json_encode($alert_days) ?>,
+    ...<?= json_encode($reading_days) ?>
 ])].sort();
 
-const alertMap   = Object.fromEntries(<?= json_encode(array_map(null, $alert_days, $alert_cnts)); ?>.map(([d,c])=>[d,c]));
-const readingMap = Object.fromEntries(<?= json_encode(array_map(null, $reading_days, $reading_cnts)); ?>.map(([d,c])=>[d,c]));
+const alertMap   = Object.fromEntries(<?= json_encode(array_map(null, $alert_days, $alert_cnts)) ?>.map(([d,c])=>[d,c]));
+const readingMap = Object.fromEntries(<?= json_encode(array_map(null, $reading_days, $reading_cnts)) ?>.map(([d,c])=>[d,c]));
 
 new Chart(document.getElementById('trendChart'), {
     type: 'line',
     data: { labels: allDays, datasets: [
-        { label:'Alerts Generated', data:allDays.map(d=>alertMap[d]||0),   borderColor:'#ef4444', backgroundColor:'rgba(239,68,68,0.1)',  tension:.4, fill:true,  yAxisID:'yAlert', pointRadius:3 },
-        { label:'Readings Logged',  data:allDays.map(d=>readingMap[d]||0), borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.08)', tension:.4, fill:false, yAxisID:'yRead',  pointRadius:3 },
+        { label:'Alerts Generated', data:allDays.map(d=>alertMap[d]||0),   borderColor:'#C05050', backgroundColor:'rgba(192,80,80,0.08)',  tension:.4, fill:true,  yAxisID:'yAlert', pointRadius:3 },
+        { label:'Readings Logged',  data:allDays.map(d=>readingMap[d]||0), borderColor:'#5E8A40', backgroundColor:'rgba(94,138,64,0.07)', tension:.4, fill:false, yAxisID:'yRead',  pointRadius:3 },
     ]},
     options: {
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:14}}, tooltip:tooltipStyle },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,padding:14}}, tooltip:tooltipStyle },
         scales:{
-            x:{ grid:{color:gridColor}, ticks:{maxTicksLimit:10} },
-            yAlert:{ position:'left',  title:{display:true,text:'Alerts'},  grid:{color:gridColor}, min:0 },
-            yRead: { position:'right', title:{display:true,text:'Readings'},grid:{drawOnChartArea:false}, min:0 },
+            x:{ grid:{color:gridColor}, ticks:{maxTicksLimit:10,color:'#B8B0A4'} },
+            yAlert:{ position:'left',  title:{display:true,text:'Alerts',color:'#7A7268'},  grid:{color:gridColor}, min:0 },
+            yRead: { position:'right', title:{display:true,text:'Readings',color:'#7A7268'},grid:{drawOnChartArea:false}, min:0 },
         }
     }
 });
 
-// ── 2. AI Risk Donut ──────────────────────────────────────────────────────
+// ── 2. AI Risk Donut ─────────────────────────────────────────────────────
 new Chart(document.getElementById('riskDonut'), {
     type: 'doughnut',
     data: {
         labels: ['High Risk','Medium Risk','Low Risk','No Data'],
         datasets:[{ data:[
-            <?= $risk_counts['high']; ?>,
-            <?= $risk_counts['medium']; ?>,
-            <?= $risk_counts['low']; ?>,
-            <?= $risk_counts['no_data']; ?>,
-        ], backgroundColor:['#ef4444','#f59e0b','#22c55e','#94a3b8'], borderWidth:0 }]
+            <?= $risk_counts['high'] ?>,
+            <?= $risk_counts['medium'] ?>,
+            <?= $risk_counts['low'] ?>,
+            <?= $risk_counts['no_data'] ?>,
+        ], backgroundColor:['#C05050','#C89040','#5E8A40','#B8B0A4'], borderWidth:0 }]
     },
     options:{
         responsive:true, maintainAspectRatio:false, cutout:'65%',
@@ -898,117 +849,113 @@ new Chart(document.getElementById('riskDonut'), {
     }
 });
 
-// ── 3. Alert Resolution Trend ─────────────────────────────────────────────
-const resDays     = <?= json_encode($res_days); ?>;
-const resTotal    = <?= json_encode($res_total); ?>;
-const resResolved = <?= json_encode($res_resolved); ?>;
+// ── 3. Alert Resolution Trend ────────────────────────────────────────────
+const resDays     = <?= json_encode($res_days) ?>;
+const resTotal    = <?= json_encode($res_total) ?>;
+const resResolved = <?= json_encode($res_resolved) ?>;
 
 new Chart(document.getElementById('resolutionChart'), {
     type: 'bar',
     data: { labels: resDays, datasets: [
-        { label:'Resolved',     data:resResolved, backgroundColor:'rgba(34,197,94,0.7)',  borderRadius:5 },
-        { label:'Unresolved',   data:resTotal.map((t,i)=>t-resResolved[i]), backgroundColor:'rgba(239,68,68,0.55)', borderRadius:5 },
+        { label:'Resolved',   data:resResolved, backgroundColor:'rgba(94,138,64,0.75)', borderRadius:4 },
+        { label:'Unresolved', data:resTotal.map((t,i)=>t-resResolved[i]), backgroundColor:'rgba(192,80,80,0.55)', borderRadius:4 },
     ]},
     options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:14}}, tooltip:tooltipStyle },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,padding:14}}, tooltip:tooltipStyle },
         scales:{
-            x:{ stacked:true, grid:{color:gridColor}, ticks:{maxTicksLimit:10} },
-            y:{ stacked:true, grid:{color:gridColor}, min:0, title:{display:true,text:'Alerts'} }
+            x:{ stacked:true, grid:{color:gridColor}, ticks:{maxTicksLimit:10,color:'#B8B0A4'} },
+            y:{ stacked:true, grid:{color:gridColor}, min:0, title:{display:true,text:'Alerts',color:'#7A7268'} }
         }
     }
 });
 
-// ── 4. Medication Adherence Trend ─────────────────────────────────────────
-const medDays   = <?= json_encode($med_days); ?>;
-const medTotals = <?= json_encode($med_totals); ?>;
-const medTakens = <?= json_encode($med_takens); ?>;
+// ── 4. Medication Adherence Trend ────────────────────────────────────────
+const medDays   = <?= json_encode($med_days) ?>;
+const medTotals = <?= json_encode($med_totals) ?>;
+const medTakens = <?= json_encode($med_takens) ?>;
 
 new Chart(document.getElementById('medChart'), {
     type: 'line',
     data: { labels: medDays, datasets: [
-        { label:'Scheduled', data:medTotals, borderColor:'#a78bfa', backgroundColor:'rgba(167,139,250,0.1)', tension:.4, fill:true,  pointRadius:3 },
-        { label:'Taken',     data:medTakens, borderColor:'#22c55e', backgroundColor:'rgba(34,197,94,0.15)',  tension:.4, fill:true,  pointRadius:3 },
+        { label:'Scheduled', data:medTotals, borderColor:'#8B7AC8', backgroundColor:'rgba(139,122,200,0.08)', tension:.4, fill:true,  pointRadius:3 },
+        { label:'Taken',     data:medTakens, borderColor:'#5E8A40', backgroundColor:'rgba(94,138,64,0.12)',   tension:.4, fill:true,  pointRadius:3 },
     ]},
     options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:14}}, tooltip:tooltipStyle },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,padding:14}}, tooltip:tooltipStyle },
         scales:{
-            x:{ grid:{color:gridColor}, ticks:{maxTicksLimit:10} },
-            y:{ grid:{color:gridColor}, min:0, title:{display:true,text:'Medications'} }
+            x:{ grid:{color:gridColor}, ticks:{maxTicksLimit:10,color:'#B8B0A4'} },
+            y:{ grid:{color:gridColor}, min:0, title:{display:true,text:'Medications',color:'#7A7268'} }
         }
     }
 });
 
-// ── 5. Facility Vitals Trend ──────────────────────────────────────────────
+// ── 5. Facility Vitals Trend ─────────────────────────────────────────────
 new Chart(document.getElementById('vitalsChart'), {
     type: 'line',
-    data: { labels: <?= json_encode($vt_days); ?>, datasets: [
-        { label:'Avg BP Systolic', data:<?= json_encode($vt_sys); ?>,   borderColor:'#ef4444', tension:.4, fill:false, pointRadius:2, yAxisID:'yBP' },
-        { label:'Avg Blood Sugar', data:<?= json_encode($vt_sugar); ?>, borderColor:'#f59e0b', tension:.4, fill:false, pointRadius:2, yAxisID:'ySugar' },
-        { label:'Avg Pulse',       data:<?= json_encode($vt_pulse); ?>, borderColor:'#8b5cf6', tension:.4, fill:false, pointRadius:2, yAxisID:'yPulse' },
-        { label:'Avg O₂ Sat',      data:<?= json_encode($vt_o2); ?>,    borderColor:'#06b6d4', tension:.4, fill:false, pointRadius:2, yAxisID:'yO2' },
+    data: { labels: <?= json_encode($vt_days) ?>, datasets: [
+        { label:'Avg BP Systolic', data:<?= json_encode($vt_sys) ?>,   borderColor:'#C05050', tension:.4, fill:false, pointRadius:2, yAxisID:'yBP' },
+        { label:'Avg Blood Sugar', data:<?= json_encode($vt_sugar) ?>, borderColor:'#C89040', tension:.4, fill:false, pointRadius:2, yAxisID:'ySugar' },
+        { label:'Avg Pulse',       data:<?= json_encode($vt_pulse) ?>, borderColor:'#6B7FC8', tension:.4, fill:false, pointRadius:2, yAxisID:'yPulse' },
+        { label:'Avg O₂ Sat',      data:<?= json_encode($vt_o2) ?>,    borderColor:'#4A90A8', tension:.4, fill:false, pointRadius:2, yAxisID:'yO2' },
     ]},
     options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:14}}, tooltip:tooltipStyle },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,padding:14}}, tooltip:tooltipStyle },
         scales:{
-            x: { grid:{color:gridColor}, ticks:{maxTicksLimit:10} },
-            yBP:    { position:'left',  title:{display:true,text:'mmHg / mg/dL / bpm'}, grid:{color:gridColor}, min:40  },
+            x: { grid:{color:gridColor}, ticks:{maxTicksLimit:10,color:'#B8B0A4'} },
+            yBP:    { position:'left',  title:{display:true,text:'mmHg / mg/dL / bpm',color:'#7A7268'}, grid:{color:gridColor}, min:40 },
             ySugar: { display:false },
             yPulse: { display:false },
-            yO2:    { position:'right', title:{display:true,text:'O₂ %'}, grid:{drawOnChartArea:false}, min:85, max:100 },
+            yO2:    { position:'right', title:{display:true,text:'O₂ %',color:'#7A7268'}, grid:{drawOnChartArea:false}, min:85, max:100 },
         }
     }
 });
 
-// ── 6. Routine Completion Trend ───────────────────────────────────────────
+// ── 6. Routine Completion Trend ──────────────────────────────────────────
 <?php if (!empty($routine_trend)): ?>
 new Chart(document.getElementById('routineChart'), {
     type: 'bar',
-    data: { labels: <?= json_encode($rt_days); ?>, datasets: [
-        { label:'Completed', data:<?= json_encode($rt_completed); ?>, backgroundColor:'rgba(34,197,94,0.75)',  borderRadius:4 },
-        { label:'Skipped',   data:<?= json_encode($rt_skipped); ?>,   backgroundColor:'rgba(239,68,68,0.6)',   borderRadius:4 },
-        { label:'Pending',   data:<?= json_encode($rt_pending); ?>,   backgroundColor:'rgba(148,163,184,0.5)', borderRadius:4 },
+    data: { labels: <?= json_encode($rt_days) ?>, datasets: [
+        { label:'Completed', data:<?= json_encode($rt_completed) ?>, backgroundColor:'rgba(94,138,64,0.75)',  borderRadius:4 },
+        { label:'Skipped',   data:<?= json_encode($rt_skipped) ?>,   backgroundColor:'rgba(192,80,80,0.6)',   borderRadius:4 },
+        { label:'Pending',   data:<?= json_encode($rt_pending) ?>,   backgroundColor:'rgba(184,176,164,0.5)', borderRadius:4 },
     ]},
     options:{
         responsive:true, maintainAspectRatio:false,
         interaction:{mode:'index',intersect:false},
-        plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:14}}, tooltip:tooltipStyle },
+        plugins:{ legend:{position:'bottom',labels:{boxWidth:11,padding:14}}, tooltip:tooltipStyle },
         scales:{
-            x:{ stacked:true, grid:{color:gridColor}, ticks:{maxTicksLimit:10} },
-            y:{ stacked:true, grid:{color:gridColor}, min:0, title:{display:true,text:'Routines'} }
+            x:{ stacked:true, grid:{color:gridColor}, ticks:{maxTicksLimit:10,color:'#B8B0A4'} },
+            y:{ stacked:true, grid:{color:gridColor}, min:0, title:{display:true,text:'Routines',color:'#7A7268'} }
         }
     }
 });
 <?php endif; ?>
 
-// ── 7. Alert Type Pie ─────────────────────────────────────────────────────
+// ── 7. Alert Type Pie ────────────────────────────────────────────────────
 <?php if (!empty($type_breakdown)): ?>
 new Chart(document.getElementById('typeChart'), {
     type: 'pie',
     data: {
-        labels: <?= json_encode(array_map(fn($l)=>strtoupper(str_replace('_',' ',$l)), $type_labels)); ?>,
-        datasets:[{ data:<?= json_encode($type_cnts); ?>, backgroundColor:['#87A96B','#6D9B8E','#ef4444','#f59e0b','#06b6d4','#a78bfa'], borderWidth:0 }]
+        labels: <?= json_encode(array_map(fn($l)=>strtoupper(str_replace('_',' ',$l)), $type_labels)) ?>,
+        datasets:[{ data:<?= json_encode($type_cnts) ?>, backgroundColor:['#5E8A40','#4A6E30','#C05050','#C89040','#4A90A8','#8B7AC8'], borderWidth:0 }]
     },
-    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{boxWidth:12,padding:10}}, tooltip:tooltipStyle } }
+    options:{ responsive:true, maintainAspectRatio:false, plugins:{ legend:{position:'bottom',labels:{boxWidth:11,padding:10}}, tooltip:tooltipStyle } }
 });
 <?php endif; ?>
 
-// ── Animate top-resident bars ─────────────────────────────────────────────
+// ── Animate bars ─────────────────────────────────────────────────────────
 document.querySelectorAll('.top-fill').forEach(bar => {
-    const t = bar.style.width;
-    bar.style.width = '0%';
+    const t = bar.style.width; bar.style.width = '0%';
     setTimeout(() => { bar.style.width = t; }, 300);
 });
-
-// ── Animate caregiver rate bars ───────────────────────────────────────────
 document.querySelectorAll('.rate-bar-fill').forEach(bar => {
-    const t = bar.style.width;
-    bar.style.width = '0%';
+    const t = bar.style.width; bar.style.width = '0%';
     setTimeout(() => { bar.style.width = t; bar.style.transition = 'width 0.9s ease'; }, 350);
 });
 </script>
