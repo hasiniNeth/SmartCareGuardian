@@ -302,12 +302,12 @@ h1, h2, h3, h4, h5, .display-4 {
             border-radius: 20px;
             padding: 50px 40px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
-            width: 100%;
+            width: 1050px;
+            margin-right: 30px;
         }
-        
         .contact-info {
             text-align: center;
-            padding: 25px 15px;
+            padding: 20px 10px;
             transition: all 0.3s ease;
         }
         
@@ -405,6 +405,14 @@ h1, h2, h3, h4, h5, .display-4 {
         
         .footer-contact a:hover {
             color: var(--seafoam);
+        }
+
+        /* Footer Brand Text Fix */
+        .footer-brand {
+            color: white !important;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
         }
 
         /* Custom Animations */

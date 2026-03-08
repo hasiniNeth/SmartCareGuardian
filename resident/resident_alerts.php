@@ -514,7 +514,9 @@ h1,h2,h3,h4,h5{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0
                     <?php if(count($trend_data) >= 2): ?>
                     <div class="trend-section">
                         <div class="trend-title"><i class="fas fa-chart-line me-1"></i>Your 30-Day Risk Trend</div>
-                        <canvas id="trendChart" height="80" style="width:100%;"></canvas>
+                        <div style="position:relative;height:80px;width:100%;">
+                            <canvas id="trendChart" style="width:100%;height:80px;"></canvas>
+                        </div>
                         <div class="d-flex gap-4 mt-2 justify-content-center" style="font-size:14px;font-weight:600;">
                             <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--s400);margin-right:5px;"></span>Low</span>
                             <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#D4A853;margin-right:5px;"></span>Medium</span>

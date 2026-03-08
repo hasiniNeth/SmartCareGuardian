@@ -16,7 +16,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="assets/css/style.css" rel="stylesheet">
+    <link href="assets/css/style2.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
@@ -288,8 +288,8 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
     <footer class="footer py-5">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-4 text-center text-lg-start mb-4 mb-lg-0" data-aos="fade-right">
-                    <h4 class="brand-font mb-3">
+                <div class="col-lg-4 text-center text-lg-start mb-4 mb-lg-0">
+                    <h4 class="footer-brand mb-3">
                         <i class="fas fa-leaf me-2"></i>SUBODHA AYURVEDA
                     </h4>
                     <p class="mb-0">Ancient Wisdom, Modern Care, Eternal Compassion</p>
@@ -304,10 +304,10 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
                         </a>
                     </div>
                     <div class="footer-links">
-                        <a href="#home">Home</a>
-                        <a href="#about">About</a>
-                        <a href="#services">Services</a>
-                        <a href="#contact">Contact</a>
+                        <a href="index.php">Home</a>
+                        <a href="about.php">About</a>
+                        <a href="services.php">Services</a>
+                        <a href="contact.php">Contact</a>
                     </div>
                 </div>
                 <div class="col-lg-4 text-center text-lg-end" data-aos="fade-left">
@@ -334,8 +334,8 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
                 </div>
             </div>
             <hr class="my-4" style="background: rgba(255,255,255,0.3);">
-            <div class="text-center" data-aos="fade-up">
-                <p class="mb-0">&copy; 2024 Subodha Ayurveda Hospital (Pvt) Ltd. All rights reserved.</p>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2026 Subodha Ayurveda Hospital (Pvt) Ltd. All rights reserved.</p>
             </div>
         </div>
     </footer>

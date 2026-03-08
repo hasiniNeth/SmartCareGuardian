@@ -729,7 +729,7 @@
             </div>
             <hr class="my-4" style="background: rgba(255,255,255,0.3);">
             <div class="text-center">
-                <p class="mb-0">&copy; 2024 Subodha Ayurveda Hospital (Pvt) Ltd. All rights reserved.</p>
+                <p class="mb-0">&copy; 2026 Subodha Ayurveda Hospital (Pvt) Ltd. All rights reserved.</p>
             </div>
         </div>
     </footer>

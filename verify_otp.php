@@ -2,91 +2,55 @@
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 require 'vendor/autoload.php';
 include 'db_connection.php';
 
-// --- Function to resend OTP via email ---
 function sendOTP($email, $otp) {
     $mail = new PHPMailer(true);
     try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'smartcareguardian@gmail.com'; 
-        $mail->Password = 'yvry blsv yfss pjjn'; // Gmail App Password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-
-        $mail->setFrom('smartcareguardian@gmail.com', 'SmartCare Guardian');
-        $mail->addAddress($email);
-        $mail->isHTML(true);
-        $mail->Subject = 'SmartCare Guardian - OTP Verification';
-        $mail->Body = "
-            <div style='font-family: Arial, sans-serif; text-align:center; padding:20px;'>
-                <h2 style='color:#4A766E;'>SmartCare Guardian</h2>
-                <p>Your verification code is:</p>
-                <h1 style='color:#87A96B;'>$otp</h1>
-                <p>This code will expire in 10 minutes.</p>
-            </div>
-        ";
-
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        error_log("Mailer Error: {$mail->ErrorInfo}");
-        return false;
-    }
+        $mail->isSMTP(); $mail->Host='smtp.gmail.com'; $mail->SMTPAuth=true;
+        $mail->Username='smartcareguardian@gmail.com'; $mail->Password='yvry blsv yfss pjjn';
+        $mail->SMTPSecure=PHPMailer::ENCRYPTION_STARTTLS; $mail->Port=587;
+        $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer'       => false,
+                'verify_peer_name'  => false,
+                'allow_self_signed' => true
+            )
+        );
+        $mail->setFrom('smartcareguardian@gmail.com','SmartCare Guardian');
+        $mail->addAddress($email); $mail->isHTML(true);
+        $mail->Subject='SmartCare Guardian – OTP Verification';
+        $year=date('Y'); $otpSafe=htmlspecialchars($otp);
+        $mail->Body="<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body style='margin:0;padding:0;background:#F7F1E5;font-family:Arial,sans-serif;'><table width='100%' cellpadding='0' cellspacing='0' style='background:#F7F1E5;padding:40px 16px;'><tr><td align='center'><table width='600' cellpadding='0' cellspacing='0' style='max-width:600px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(36,56,22,.15);'><tr><td style='background:linear-gradient(135deg,#243816,#365220,#5E8A40);padding:34px 40px 28px;text-align:center;'><table cellpadding='0' cellspacing='0' style='margin:0 auto 10px;'><tr><td style='background:linear-gradient(135deg,#9DC07E,#5E8A40);border-radius:12px;width:46px;height:46px;text-align:center;vertical-align:middle;font-size:22px;line-height:46px;'>🌿</td><td style='padding-left:12px;text-align:left;vertical-align:middle;'><div style='font-size:21px;font-weight:700;color:#fff;line-height:1.1;'>SmartCare</div><div style='font-size:21px;font-weight:700;color:#C8E6A0;line-height:1.1;'>Guardian</div></td></tr></table><div style='font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase;'>Resident Care Portal</div></td></tr><tr><td style='background:#fff;padding:40px;'><div style='text-align:center;margin-bottom:24px;'><div style='display:inline-block;background:#F2F6EF;border-radius:50%;width:62px;height:62px;line-height:62px;font-size:26px;border:2px solid #C4D9B4;'>🔐</div></div><h1 style='margin:0 0 8px;font-size:24px;font-weight:700;color:#243816;text-align:center;'>Verify Your Identity</h1><p style='margin:0 0 24px;font-size:15px;color:#7A7268;text-align:center;'>Use the one-time code below to complete your verification.</p><div style='height:1px;background:linear-gradient(90deg,transparent,#C4D9B4,transparent);margin-bottom:24px;'></div><table width='100%' cellpadding='0' cellspacing='0' style='margin-bottom:20px;'><tr><td align='center'><div style='display:inline-block;background:linear-gradient(135deg,#243816,#5E8A40);border-radius:16px;padding:26px 52px;box-shadow:0 6px 24px rgba(36,56,22,.25);'><div style='font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;'>Your Verification Code</div><div style='font-size:46px;font-weight:800;color:#fff;letter-spacing:.18em;font-family:\"Courier New\",monospace;line-height:1;'>$otpSafe</div></div></td></tr></table><table width='100%' cellpadding='0' cellspacing='0' style='margin-bottom:16px;'><tr><td style='background:#FAECC8;border-radius:10px;padding:14px 18px;border-left:4px solid #D4A853;'><p style='margin:0;font-size:14px;color:#7A5010;font-weight:600;'>⏱ This code will expire in <strong>10 minutes</strong>.</p></td></tr></table><table width='100%' cellpadding='0' cellspacing='0' style='margin-bottom:24px;'><tr><td style='background:#F2F6EF;border-radius:10px;padding:14px 18px;'><p style='margin:0;font-size:13px;color:#7A7268;'>🛡 If you did not request this code, please ignore this email.</p></td></tr></table><p style='margin:0;font-size:15px;color:#4A4540;'>Warm regards,<br><strong style='color:#243816;'>SmartCare Guardian Team</strong></p></td></tr><tr><td style='background:#F2F6EF;border-top:1px solid #C4D9B4;padding:22px 40px;text-align:center;'><p style='margin:0 0 4px;font-size:13px;color:#7A7268;font-weight:600;'>SmartCare Guardian · Resident Care Portal</p><p style='margin:0;font-size:12px;color:#B8B0A4;'>&copy; $year SmartCare Guardian. All rights reserved.</p></td></tr></table></td></tr></table></body></html>";
+        $mail->AltBody="Your verification code: $otp — expires in 10 minutes.";
+        $mail->send(); return true;
+    } catch (Exception $e) { 
+        error_log("Mailer Error: {$mail->ErrorInfo}"); 
+        $_SESSION['mail_error'] = $mail->ErrorInfo;
+        return false; }
 }
 
-// --- Redirect if no temporary user session ---
-if (!isset($_SESSION['temp_user'])) {
-    header("Location: register.php");
-    exit();
-}
+if (!isset($_SESSION['temp_user'])) { header("Location: register.php"); exit(); }
+$user=$_SESSION['temp_user']; $email=$user['email'];
+$message=''; $message_type='';
 
-$user = $_SESSION['temp_user'];
-$email = $user['email'];
-$message = '';
-$message_type = '';
-
-// --- Verify OTP ---
 if (isset($_POST['verify'])) {
-    $entered_otp = trim($_POST['otp']); // Hidden field holds the full OTP value
-
-    // Check OTP from database
-    $stmt = $conn->prepare("SELECT * FROM otp_verification WHERE email = ? AND otp = ? AND verified = 0 ORDER BY id DESC LIMIT 1");
-    $stmt->bind_param("ss", $email, $entered_otp);
-    $stmt->execute();
-    $result = $stmt->get_result();
-
-    if ($result->num_rows > 0) {
-        $otp_data = $result->fetch_assoc();
-
-        if (strtotime($otp_data['otp_expiry']) > time()) {
-            // Mark OTP as verified
-            $update = $conn->prepare("UPDATE otp_verification SET verified = 1 WHERE id = ?");
-            $update->bind_param("i", $otp_data['id']);
-            $update->execute();
-
-            // Add user to main table
-            $insert = $conn->prepare("INSERT INTO users (full_name, email, password, role, status) VALUES (?, ?, ?, 'resident', 'active')");
-            $insert->bind_param("sss", $user['full_name'], $user['email'], $user['password']);
-            $insert->execute();
-
+    $entered_otp=trim($_POST['otp']);
+    $stmt=$conn->prepare("SELECT * FROM otp_verification WHERE email=? AND otp=? AND verified=0 ORDER BY id DESC LIMIT 1");
+    $stmt->bind_param("ss",$email,$entered_otp); $stmt->execute();
+    $result=$stmt->get_result();
+    if ($result->num_rows>0) {
+        $otp_data=$result->fetch_assoc();
+        if (strtotime($otp_data['otp_expiry'])>time()) {
+            $update=$conn->prepare("UPDATE otp_verification SET verified=1 WHERE id=?"); $update->bind_param("i",$otp_data['id']); $update->execute();
+            $insert=$conn->prepare("INSERT INTO users (full_name,email,password,role,status) VALUES (?,?,?,'resident','active')");
+            $insert->bind_param("sss",$user['full_name'],$user['email'],$user['password']); $insert->execute();
             unset($_SESSION['temp_user']);
-            echo "<script>alert('Account verified successfully! You can now login.'); window.location='login.php';</script>";
-            exit();
-        } else {
-            $message = "OTP has expired. Please request a new one.";
-            $message_type = "danger";
-        }
-    } else {
-        $message = "Invalid OTP. Please try again.";
-        $message_type = "danger";
-    }
+            echo "<script>alert('Account verified! You can now login.');window.location='login.php';</script>"; exit();
+        } else { $message="OTP has expired. Please request a new one."; $message_type="danger"; }
+    } else { $message="Invalid OTP. Please try again."; $message_type="danger"; }
 }
-
 // --- Resend OTP ---
 if (isset($_POST['resend'])) {
     $otp = rand(100000, 999999);
@@ -100,7 +64,8 @@ if (isset($_POST['resend'])) {
         $message = "A new OTP has been sent to your email.";
         $message_type = "success";
     } else {
-        $message = "Failed to resend OTP. Please try again later.";
+        // Show the REAL error so you know what's wrong
+        $message = "Failed to resend OTP. Error: " . (isset($_SESSION['mail_error']) ? $_SESSION['mail_error'] : 'Unknown error');
         $message_type = "danger";
     }
 }
@@ -108,120 +73,233 @@ if (isset($_POST['resend'])) {
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Verify OTP - SmartCare Guardian</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Verify OTP – SmartCare Guardian</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --sage-green: #87A96B;
-            --dusty-teal: #6D9B8E;
-            --forest-mist: #B8E0D2;
-            --deep-emerald: #4A766E;
+        /* ═══════════════════════════════════════════════════════════
+   SMARTCARE GUARDIAN — AYURVEDIC DESIGN SYSTEM
+   Auth / Standalone pages
+═══════════════════════════════════════════════════════════ */
+:root {
+    --s50:#F2F6EF;--s100:#E3EDDB;--s200:#C4D9B4;
+    --s300:#9DC07E;--s400:#7AA658;--s500:#5E8A40;
+    --s600:#4A6E30;--s700:#365220;--s800:#243816;
+    --w50:#FDFAF5;--w100:#F7F1E5;
+    --st300:#B8B0A4;--st500:#7A7268;--st700:#4A4540;
+    --green-bg:#DDEFD8;--green-text:#3A6830;
+    --amber-bg:#FAECC8;--amber-text:#7A5010;
+    --red-bg:#F5DADA;--red-text:#6A2020;
+    --radius-sm:8px;--radius-md:12px;--radius-lg:20px;
+    --shadow-card:0 4px 24px rgba(36,56,22,.09),0 1px 4px rgba(36,56,22,.06);
+    --shadow-lift:0 8px 32px rgba(36,56,22,.13),0 2px 8px rgba(36,56,22,.07);
+}
+*,*::before,*::after{box-sizing:border-box;}
+body {
+    font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;
+    background:var(--w50);
+    background-image:
+        radial-gradient(ellipse 70% 50% at 90% 0%,rgba(157,192,126,.09) 0%,transparent 55%),
+        radial-gradient(ellipse 50% 40% at 0% 100%,rgba(122,166,88,.06) 0%,transparent 50%);
+    color:var(--st700);min-height:100vh;margin:0;padding:30px 16px;
+    display:flex;align-items:center;justify-content:center;
+}
+h1,h2,h3,h4,h5,h6{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0;}
+
+.auth-card {
+    background:white;border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lift);overflow:hidden;width:100%;
+    border:1px solid rgba(196,217,180,.25);
+}
+.auth-header {
+    background:linear-gradient(135deg,var(--s800) 0%,var(--s700) 50%,var(--s500) 100%);
+    padding:34px 36px 28px;text-align:center;position:relative;overflow:hidden;
+}
+.auth-header::before {
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:
+        radial-gradient(ellipse 120% 60% at 50% -10%,rgba(157,192,126,.18) 0%,transparent 60%),
+        radial-gradient(ellipse 80% 80% at 110% 110%,rgba(94,138,64,.15) 0%,transparent 55%);
+}
+.auth-brand {
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;position:relative;
+}
+.auth-brand-icon {
+    width:36px;height:36px;background:linear-gradient(135deg,var(--s300),var(--s500));
+    border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:white;box-shadow:0 3px 10px rgba(0,0,0,.3);flex-shrink:0;
+}
+.auth-brand-text {
+    text-align:left;font-family:'Cormorant Garamond',serif;
+    font-size:18px;font-weight:600;color:white;line-height:1.1;
+}
+.auth-brand-text span{color:#C8E6A0;display:block;}
+.auth-header-icon {
+    width:58px;height:58px;background:rgba(255,255,255,.12);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.4rem;color:white;margin:0 auto 14px;position:relative;
+    border:2px solid rgba(255,255,255,.2);
+}
+.auth-header h2 {
+    font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;
+    color:white;margin:0 0 6px;position:relative;
+}
+.auth-header p{font-size:13px;color:rgba(255,255,255,.65);margin:0;position:relative;}
+.auth-body{padding:34px 36px;}
+
+.form-label {
+    color:var(--s800);font-weight:700;margin-bottom:6px;
+    font-size:13px;display:flex;align-items:center;gap:6px;
+}
+.form-control,.form-select {
+    border:2px solid var(--s100);border-radius:var(--radius-md);
+    padding:11px 14px;font-family:'Outfit',sans-serif;
+    font-size:14px;color:var(--st700);background:var(--w50);
+    transition:all .2s;width:100%;display:block;
+}
+.form-control:focus,.form-select:focus {
+    border-color:var(--s400);box-shadow:0 0 0 3px rgba(122,166,88,.15);outline:none;
+}
+.form-control::placeholder{color:var(--st300);}
+.input-icon-wrap{position:relative;}
+.input-icon-wrap .form-control{padding-left:42px;}
+.input-icon-wrap i {
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    color:var(--s400);font-size:13px;z-index:2;pointer-events:none;
+}
+.btn-save {
+    background:linear-gradient(135deg,var(--s400),var(--s700));
+    border:none;border-radius:var(--radius-md);color:white;
+    padding:12px 28px;font-weight:700;font-size:14px;
+    font-family:'Outfit',sans-serif;transition:all .2s;
+    cursor:pointer;display:inline-flex;align-items:center;
+    justify-content:center;gap:7px;width:100%;
+}
+.btn-save:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--shadow-card);}
+.btn-outline {
+    background:transparent;border:2px solid var(--s200);
+    border-radius:var(--radius-md);color:var(--st500);
+    padding:11px 20px;font-weight:700;font-size:14px;
+    font-family:'Outfit',sans-serif;transition:all .2s;
+    text-decoration:none;display:inline-flex;align-items:center;gap:7px;
+    cursor:pointer;
+}
+.btn-outline:hover{background:var(--s50);border-color:var(--s300);color:var(--s700);}
+.alert {
+    border-radius:var(--radius-md);border:none;padding:13px 16px;
+    margin-bottom:20px;font-size:14px;font-weight:600;
+    display:flex;align-items:flex-start;gap:8px;
+}
+.alert-danger {background:var(--red-bg);color:var(--red-text);}
+.alert-warning{background:var(--amber-bg);color:var(--amber-text);}
+.alert-success{background:var(--green-bg);color:var(--green-text);}
+.info-note {
+    background:var(--s50);border:1px solid var(--s200);border-radius:var(--radius-md);
+    padding:13px 16px;margin-bottom:22px;font-size:13px;color:var(--s700);
+    display:flex;align-items:center;gap:8px;
+}
+.auth-footer-link{text-align:center;margin-top:22px;font-size:13.5px;color:var(--st500);}
+.auth-footer-link a{color:var(--s500);text-decoration:none;font-weight:700;transition:color .2s;}
+.auth-footer-link a:hover{color:var(--s800);text-decoration:underline;}
+.pw-hint{font-size:12px;color:var(--st300);margin-top:5px;display:flex;align-items:center;gap:5px;}
+.otp-row{display:flex;justify-content:center;gap:10px;margin:22px 0;}
+.otp-digit {
+    width:52px;height:62px;text-align:center;
+    border:2px solid var(--s100);border-radius:var(--radius-md);
+    font-size:22px;font-weight:800;color:var(--s800);
+    background:var(--w50);font-family:'Outfit',sans-serif;
+    transition:all .2s;outline:none;
+}
+.otp-digit:focus{border-color:var(--s400);box-shadow:0 0 0 3px rgba(122,166,88,.15);}
+@media(max-width:480px){
+    .auth-body{padding:24px 20px;}
+    .auth-header{padding:26px 20px;}
+    .otp-digit{width:42px;height:54px;font-size:18px;}
+}
+        .auth-card{max-width:460px;}
+        .otp-sent-to{
+            background:var(--s50);border:1px solid var(--s200);border-radius:var(--radius-md);
+            padding:13px 16px;margin-bottom:22px;font-size:13px;color:var(--s700);
+            text-align:center;
         }
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, #F0FFF0 0%, var(--forest-mist) 100%);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .otp-container {
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
-            overflow: hidden;
-            width: 400px;
-        }
-        .otp-header {
-            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-            color: white;
-            text-align: center;
-            padding: 30px;
-        }
-        .otp-input-group {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin: 30px 0;
-        }
-        .otp-input {
-            width: 50px;
-            height: 60px;
-            text-align: center;
-            border: 2px solid var(--forest-mist);
-            border-radius: 10px;
-            font-size: 20px;
-            font-weight: bold;
-            color: var(--deep-emerald);
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-            border: none;
-            width: 100%;
-            border-radius: 50px;
-            padding: 12px;
-            font-weight: bold;
-        }
-        .btn-secondary {
-            border: 2px solid var(--dusty-teal);
-            color: var(--dusty-teal);
-            width: 100%;
-            border-radius: 50px;
-            padding: 12px;
-            background: none;
-        }
+        .otp-sent-to strong{color:var(--s800);display:block;font-size:14px;margin-bottom:2px;}
     </style>
 </head>
 <body>
-    <div class="otp-container">
-        <div class="otp-header">
-            <h2>OTP Verification</h2>
-            <p>We’ve sent a code to <?php echo htmlspecialchars($email); ?></p>
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="auth-brand">
+            <div class="auth-brand-icon"><i class="fas fa-leaf"></i></div>
+            <div class="auth-brand-text">SmartCare<span>Guardian</span></div>
         </div>
-        <div class="p-4">
-            <?php if ($message): ?>
-                <div class="alert alert-<?php echo $message_type; ?>"><?php echo $message; ?></div>
-            <?php endif; ?>
+        <div class="auth-header-icon"><i class="fas fa-shield-halved"></i></div>
+        <h2>OTP Verification</h2>
+        <p>Enter the 6-digit code sent to your email</p>
+    </div>
+    <div class="auth-body">
+        <?php if ($message): ?>
+            <div class="alert alert-<?php echo $message_type; ?>">
+                <i class="fas fa-<?php echo $message_type==='success'?'check-circle':'exclamation-circle'; ?>"></i>
+                <?php echo $message; ?>
+            </div>
+        <?php endif; ?>
 
-            <form method="POST" id="otpForm">
-                <div class="otp-input-group">
-                    <input type="text" class="otp-input" maxlength="1" required>
-                    <input type="text" class="otp-input" maxlength="1" required>
-                    <input type="text" class="otp-input" maxlength="1" required>
-                    <input type="text" class="otp-input" maxlength="1" required>
-                    <input type="text" class="otp-input" maxlength="1" required>
-                    <input type="text" class="otp-input" maxlength="1" required>
-                </div>
-                <input type="hidden" name="otp" id="fullOtp">
-                <button type="submit" name="verify" class="btn btn-primary mb-3">Verify OTP</button>
-            </form>
-            <form method="POST">
-                <button type="submit" name="resend" class="btn btn-secondary">Resend OTP</button>
-            </form>
+        <div class="otp-sent-to">
+            <strong><i class="fas fa-envelope me-2" style="color:var(--s400);"></i>Code sent to</strong>
+            <?php echo htmlspecialchars($email); ?>
+        </div>
+
+        <form method="POST" id="otpForm">
+            <div class="otp-row">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+                <input type="text" class="otp-digit" maxlength="1" inputmode="numeric" pattern="[0-9]">
+            </div>
+            <input type="hidden" name="otp" id="fullOtp">
+            <button type="submit" name="verify" class="btn-save mb-3">
+                <i class="fas fa-check-circle"></i>Verify Code
+            </button>
+        </form>
+
+        <form method="POST">
+            <button type="submit" name="resend" class="btn-outline w-100 justify-content-center">
+                <i class="fas fa-rotate-right"></i>Resend Code
+            </button>
+        </form>
+
+        <div class="auth-footer-link" style="margin-top:18px;">
+            <a href="register.php"><i class="fas fa-arrow-left me-1"></i>Back to Registration</a>
         </div>
     </div>
-
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    // Combine OTP digits
-    const inputs = document.querySelectorAll('.otp-input');
-    const hiddenField = document.getElementById('fullOtp');
-
-    inputs.forEach((input, index) => {
-        input.addEventListener('input', () => {
-            if (input.value.length === 1 && index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
-            hiddenField.value = Array.from(inputs).map(i => i.value).join('');
-        });
-        input.addEventListener('keydown', e => {
-            if (e.key === "Backspace" && input.value === '' && index > 0) {
-                inputs[index - 1].focus();
-            }
-        });
+const inputs=document.querySelectorAll('.otp-digit');
+const hidden=document.getElementById('fullOtp');
+inputs.forEach((inp,i)=>{
+    inp.addEventListener('input',()=>{
+        inp.value=inp.value.replace(/[^0-9]/g,'');
+        if(inp.value.length===1&&i<inputs.length-1)inputs[i+1].focus();
+        hidden.value=Array.from(inputs).map(x=>x.value).join('');
     });
+    inp.addEventListener('keydown',e=>{
+        if(e.key==='Backspace'&&inp.value===''&&i>0)inputs[i-1].focus();
+    });
+    inp.addEventListener('paste',e=>{
+        e.preventDefault();
+        const paste=(e.clipboardData||window.clipboardData).getData('text').replace(/\D/g,'');
+        inputs.forEach((el,j)=>{el.value=paste[j]||'';});
+        hidden.value=paste.slice(0,6);
+        const next=Math.min(paste.length,5);
+        inputs[next].focus();
+    });
+});
+document.addEventListener('DOMContentLoaded',()=>inputs[0].focus());
 </script>
 </body>
 </html>

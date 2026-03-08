@@ -40,9 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         if ($has_profile) {
             $stmt = $conn->prepare("UPDATE caregivers SET phone = ?, address = ?, gender = ?, dob = ?, experience_years = ?, skills = ? WHERE user_id = ?");
-            $stmt->bind_param("ssssis i", $phone, $address, $gender, $dob, $experience_years, $skills, $caregiver_id);
-            $stmt->close();
-            $stmt = $conn->prepare("UPDATE caregivers SET phone = ?, address = ?, gender = ?, dob = ?, experience_years = ?, skills = ? WHERE user_id = ?");
             $stmt->bind_param("ssssisi", $phone, $address, $gender, $dob, $experience_years, $skills, $caregiver_id);
         } else {
             $stmt = $conn->prepare("INSERT INTO caregivers (user_id, phone, address, gender, dob, experience_years, skills, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())");

@@ -2,421 +2,227 @@
 session_start();
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
-
 require 'vendor/autoload.php';
 include 'db_connection.php';
 
 function sendResetOTP($email, $otp) {
     $mail = new PHPMailer(true);
     try {
-        $mail->isSMTP();
-        $mail->Host = 'smtp.gmail.com';
-        $mail->SMTPAuth = true;
-        $mail->Username = 'smartcareguardian@gmail.com'; // your email
-        $mail->Password = 'yvry blsv yfss pjjn'; // Gmail app password
-        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-        $mail->Port = 587;
-        $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer' => false,
-                'verify_peer_name' => false,
-                'allow_self_signed' => true
-            )
-        );
-
-        $mail->setFrom('smartcareguardian@gmail.com', 'SmartCare Guardian');
-        $mail->addAddress($email);
-        $mail->isHTML(true);
-        $mail->Subject = 'Password Reset - SmartCare Guardian';
-        $mail->Body = "
-            <div style='font-family:Arial,sans-serif;padding:20px;background:#f9f9f9;border-radius:10px;'>
-                <h2 style='color:#4A766E;'>Password Reset Request</h2>
-                <p>Your verification code is:</p>
-                <h1 style='letter-spacing:4px;color:#87A96B;'>$otp</h1>
-                <p>This code will expire in 10 minutes.</p>
-                <hr>
-                <p>If you didn't request a password reset, please ignore this email.</p>
-            </div>
-        ";
-        $mail->send();
-        return true;
-    } catch (Exception $e) {
-        error_log("Mailer Error: {$mail->ErrorInfo}");
-        return false;
-    }
+        $mail->isSMTP(); $mail->Host='smtp.gmail.com'; $mail->SMTPAuth=true;
+        $mail->Username='smartcareguardian@gmail.com'; $mail->Password='yvry blsv yfss pjjn';
+        $mail->SMTPSecure=PHPMailer::ENCRYPTION_STARTTLS; $mail->Port=587;
+        $mail->SMTPOptions=['ssl'=>['verify_peer'=>false,'verify_peer_name'=>false,'allow_self_signed'=>true]];
+        $mail->setFrom('smartcareguardian@gmail.com','SmartCare Guardian');
+        $mail->addAddress($email); $mail->isHTML(true);
+        $mail->Subject='Password Reset - SmartCare Guardian';
+        $year=date('Y'); $otpSafe=htmlspecialchars($otp);
+        $mail->Body="<!DOCTYPE html><html><head><meta charset='UTF-8'></head><body style='margin:0;padding:0;background:#F7F1E5;font-family:Arial,sans-serif;'><table width='100%' cellpadding='0' cellspacing='0' style='background:#F7F1E5;padding:40px 16px;'><tr><td align='center'><table width='600' cellpadding='0' cellspacing='0' style='max-width:600px;border-radius:20px;overflow:hidden;box-shadow:0 8px 40px rgba(36,56,22,.15);'><tr><td style='background:linear-gradient(135deg,#243816,#365220,#5E8A40);padding:34px 40px 28px;text-align:center;'><table cellpadding='0' cellspacing='0' style='margin:0 auto 10px;'><tr><td style='background:linear-gradient(135deg,#9DC07E,#5E8A40);border-radius:12px;width:46px;height:46px;text-align:center;vertical-align:middle;font-size:22px;line-height:46px;'>🌿</td><td style='padding-left:12px;text-align:left;vertical-align:middle;'><div style='font-size:21px;font-weight:700;color:#fff;line-height:1.1;'>SmartCare</div><div style='font-size:21px;font-weight:700;color:#C8E6A0;line-height:1.1;'>Guardian</div></td></tr></table><div style='font-size:11px;color:rgba(255,255,255,.4);letter-spacing:.12em;text-transform:uppercase;'>Resident Care Portal</div></td></tr><tr><td style='background:#fff;padding:40px;'><div style='text-align:center;margin-bottom:24px;'><div style='display:inline-block;background:#F2F6EF;border-radius:50%;width:62px;height:62px;line-height:62px;font-size:26px;border:2px solid #C4D9B4;'>🔑</div></div><h1 style='margin:0 0 8px;font-size:24px;font-weight:700;color:#243816;text-align:center;'>Password Reset Request</h1><p style='margin:0 0 24px;font-size:15px;color:#7A7268;text-align:center;'>Use the code below to reset your SmartCare Guardian password.</p><div style='height:1px;background:linear-gradient(90deg,transparent,#C4D9B4,transparent);margin-bottom:24px;'></div><table width='100%' cellpadding='0' cellspacing='0' style='margin-bottom:20px;'><tr><td align='center'><div style='display:inline-block;background:linear-gradient(135deg,#243816,#5E8A40);border-radius:16px;padding:26px 52px;box-shadow:0 6px 24px rgba(36,56,22,.25);'><div style='font-size:10px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;'>Your Reset Code</div><div style='font-size:46px;font-weight:800;color:#fff;letter-spacing:.18em;font-family:\"Courier New\",monospace;line-height:1;'>$otpSafe</div></div></td></tr></table><table width='100%' cellpadding='0' cellspacing='0' style='margin-bottom:16px;'><tr><td style='background:#FAECC8;border-radius:10px;padding:14px 18px;border-left:4px solid #D4A853;'><p style='margin:0;font-size:14px;color:#7A5010;font-weight:600;'>⏱ This code will expire in <strong>10 minutes</strong>.</p></td></tr></table><table width='100%' cellpadding='0' cellspacing='0' style='margin-bottom:24px;'><tr><td style='background:#F2F6EF;border-radius:10px;padding:14px 18px;'><p style='margin:0;font-size:13px;color:#7A7268;'>🛡 If you did not request a password reset, please ignore this email. Your account remains secure.</p></td></tr></table><p style='margin:0;font-size:15px;color:#4A4540;'>Warm regards,<br><strong style='color:#243816;'>SmartCare Guardian Team</strong></p></td></tr><tr><td style='background:#F2F6EF;border-top:1px solid #C4D9B4;padding:22px 40px;text-align:center;'><p style='margin:0 0 4px;font-size:13px;color:#7A7268;font-weight:600;'>SmartCare Guardian · Resident Care Portal</p><p style='margin:0;font-size:12px;color:#B8B0A4;'>&copy; $year SmartCare Guardian. All rights reserved.</p></td></tr></table></td></tr></table></body></html>";
+        $mail->AltBody="Your reset code: $otp — expires in 10 minutes.";
+        $mail->send(); return true;
+    } catch (Exception $e) { error_log("Mailer Error: {$mail->ErrorInfo}"); return false; }
 }
 
-$message = '';
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $email = $_POST['email'];
-
-    // Check if email exists
-    $check = $conn->prepare("SELECT * FROM users WHERE email = ?");
-    $check->bind_param("s", $email);
-    $check->execute();
-    $result = $check->get_result();
-
-    if ($result->num_rows > 0) {
-        $otp = rand(100000, 999999);
-        $otp_expiry = date("Y-m-d H:i:s", strtotime("+10 minutes"));
-
-        $_SESSION['reset_email'] = $email;
-        $_SESSION['reset_otp'] = $otp;
-        $_SESSION['reset_otp_expiry'] = $otp_expiry;
-
-        if (sendResetOTP($email, $otp)) {
-            header("Location: reset_password.php");
-            exit();
-        } else {
-            $message = "<div class='alert alert-danger'>Failed to send OTP. Please try again later.</div>";
-        }
-    } else {
-        $message = "<div class='alert alert-warning'>No account found with that email.</div>";
-    }
+$message='';
+if ($_SERVER['REQUEST_METHOD']==='POST') {
+    $email=$_POST['email'];
+    $check=$conn->prepare("SELECT * FROM users WHERE email=?"); $check->bind_param("s",$email); $check->execute();
+    if ($check->get_result()->num_rows>0) {
+        $otp=rand(100000,999999); $otp_expiry=date("Y-m-d H:i:s",strtotime("+10 minutes"));
+        $_SESSION['reset_email']=$email; $_SESSION['reset_otp']=$otp; $_SESSION['reset_otp_expiry']=$otp_expiry;
+        if (sendResetOTP($email,$otp)) { header("Location: reset_password.php"); exit(); }
+        else $message="<div class='alert alert-danger'><i class='fas fa-exclamation-circle'></i>Failed to send OTP. Please try again later.</div>";
+    } else $message="<div class='alert alert-warning'><i class='fas fa-exclamation-triangle'></i>No account found with that email address.</div>";
 }
 ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Forgot Password - SmartCare Guardian</title>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>Forgot Password – SmartCare Guardian</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --sage-green: #87A96B;
-            --mint-cream: #F0FFF0;
-            --seafoam: #9FE2BF;
-            --forest-mist: #B8E0D2;
-            --dusty-teal: #6D9B8E;
-            --deep-emerald: #4A766E;
-        }
-        
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, var(--mint-cream) 0%, var(--forest-mist) 100%);
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: float 20s infinite linear;
-            z-index: 0;
-        }
-        
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-50px, -50px) rotate(360deg); }
-        }
-        
-        h1, h2, h3, h4, h5 {
-            font-family: 'Playfair Display', serif;
-            color: var(--deep-emerald);
-        }
-        
-        .brand-font {
-            font-family: 'Jost', sans-serif;
-            font-weight: 600;
-        }
+        /* ═══════════════════════════════════════════════════════════
+   SMARTCARE GUARDIAN — AYURVEDIC DESIGN SYSTEM
+   Auth / Standalone pages
+═══════════════════════════════════════════════════════════ */
+:root {
+    --s50:#F2F6EF;--s100:#E3EDDB;--s200:#C4D9B4;
+    --s300:#9DC07E;--s400:#7AA658;--s500:#5E8A40;
+    --s600:#4A6E30;--s700:#365220;--s800:#243816;
+    --w50:#FDFAF5;--w100:#F7F1E5;
+    --st300:#B8B0A4;--st500:#7A7268;--st700:#4A4540;
+    --green-bg:#DDEFD8;--green-text:#3A6830;
+    --amber-bg:#FAECC8;--amber-text:#7A5010;
+    --red-bg:#F5DADA;--red-text:#6A2020;
+    --radius-sm:8px;--radius-md:12px;--radius-lg:20px;
+    --shadow-card:0 4px 24px rgba(36,56,22,.09),0 1px 4px rgba(36,56,22,.06);
+    --shadow-lift:0 8px 32px rgba(36,56,22,.13),0 2px 8px rgba(36,56,22,.07);
+}
+*,*::before,*::after{box-sizing:border-box;}
+body {
+    font-family:'Outfit',sans-serif;font-size:15px;line-height:1.6;
+    background:var(--w50);
+    background-image:
+        radial-gradient(ellipse 70% 50% at 90% 0%,rgba(157,192,126,.09) 0%,transparent 55%),
+        radial-gradient(ellipse 50% 40% at 0% 100%,rgba(122,166,88,.06) 0%,transparent 50%);
+    color:var(--st700);min-height:100vh;margin:0;padding:30px 16px;
+    display:flex;align-items:center;justify-content:center;
+}
+h1,h2,h3,h4,h5,h6{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0;}
 
-        .reset-wrapper {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            position: relative;
-            z-index: 1;
-        }
+.auth-card {
+    background:white;border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-lift);overflow:hidden;width:100%;
+    border:1px solid rgba(196,217,180,.25);
+}
+.auth-header {
+    background:linear-gradient(135deg,var(--s800) 0%,var(--s700) 50%,var(--s500) 100%);
+    padding:34px 36px 28px;text-align:center;position:relative;overflow:hidden;
+}
+.auth-header::before {
+    content:'';position:absolute;inset:0;pointer-events:none;
+    background-image:
+        radial-gradient(ellipse 120% 60% at 50% -10%,rgba(157,192,126,.18) 0%,transparent 60%),
+        radial-gradient(ellipse 80% 80% at 110% 110%,rgba(94,138,64,.15) 0%,transparent 55%);
+}
+.auth-brand {
+    display:inline-flex;align-items:center;gap:10px;margin-bottom:20px;position:relative;
+}
+.auth-brand-icon {
+    width:36px;height:36px;background:linear-gradient(135deg,var(--s300),var(--s500));
+    border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:white;box-shadow:0 3px 10px rgba(0,0,0,.3);flex-shrink:0;
+}
+.auth-brand-text {
+    text-align:left;font-family:'Cormorant Garamond',serif;
+    font-size:18px;font-weight:600;color:white;line-height:1.1;
+}
+.auth-brand-text span{color:#C8E6A0;display:block;}
+.auth-header-icon {
+    width:58px;height:58px;background:rgba(255,255,255,.12);border-radius:50%;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.4rem;color:white;margin:0 auto 14px;position:relative;
+    border:2px solid rgba(255,255,255,.2);
+}
+.auth-header h2 {
+    font-family:'Cormorant Garamond',serif;font-size:24px;font-weight:600;
+    color:white;margin:0 0 6px;position:relative;
+}
+.auth-header p{font-size:13px;color:rgba(255,255,255,.65);margin:0;position:relative;}
+.auth-body{padding:34px 36px;}
 
-        .reset-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
-            overflow: hidden;
-            max-width: 450px;
-            width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .reset-header {
-            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .reset-header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="rgba(255,255,255,0.1)"><circle cx="20" cy="20" r="2"/><circle cx="80" cy="40" r="2"/><circle cx="40" cy="80" r="2"/><circle cx="70" cy="20" r="2"/></svg>');
-            animation: subtleMove 10s infinite linear;
-        }
-        
-        @keyframes subtleMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(10px, 10px); }
-        }
-        
-        .reset-body {
-            padding: 40px 30px;
-        }
-        
-        .form-control {
-            border: 2px solid var(--forest-mist);
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-        }
-        
-        .form-control:focus {
-            border-color: var(--sage-green);
-            box-shadow: 0 0 0 0.2rem rgba(135, 169, 107, 0.25);
-            transform: translateY(-2px);
-        }
-        
-        .form-label {
-            color: var(--deep-emerald);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .input-group-icon {
-            position: relative;
-        }
-        
-        .input-group-icon .form-control {
-            padding-left: 45px;
-        }
-        
-        .input-group-icon i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--dusty-teal);
-            z-index: 3;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            margin-top: 10px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .btn-primary::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--dusty-teal), var(--sage-green));
-            transition: left 0.4s ease;
-        }
-        
-        .btn-primary:hover::before {
-            left: 0;
-        }
-        
-        .btn-primary span {
-            position: relative;
-            z-index: 2;
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(141, 182, 154, 0.4);
-        }
-        
-        .alert {
-            border-radius: 12px;
-            border: none;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-danger {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-        }
-        
-        .alert-warning {
-            background: linear-gradient(135deg, #ffd166, #f4a261);
-            color: #8B4513;
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .login-link {
-            text-align: center;
-            margin-top: 25px;
-            color: var(--dusty-teal);
-        }
-        
-        .login-link a {
-            color: var(--sage-green);
-            text-decoration: none;
-            font-weight: 600;
-            transition: all 0.3s ease;
-        }
-        
-        .login-link a:hover {
-            color: var(--deep-emerald);
-            text-decoration: underline;
-        }
-        
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-        
-        @keyframes floating {
-            0% { transform: translate(0, 0px); }
-            50% { transform: translate(0, -10px); }
-            100% { transform: translate(0, 0px); }
-        }
-        
-        .instructions {
-            text-align: center;
-            color: var(--dusty-teal);
-            margin-bottom: 30px;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-
-        /* Responsive adjustments */
-        @media (max-height: 700px) {
-            .reset-wrapper {
-                align-items: flex-start;
-                padding: 40px 0;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .reset-body {
-                padding: 30px 20px;
-            }
-            
-            .reset-header {
-                padding: 30px 20px;
-            }
-        }
+.form-label {
+    color:var(--s800);font-weight:700;margin-bottom:6px;
+    font-size:13px;display:flex;align-items:center;gap:6px;
+}
+.form-control,.form-select {
+    border:2px solid var(--s100);border-radius:var(--radius-md);
+    padding:11px 14px;font-family:'Outfit',sans-serif;
+    font-size:14px;color:var(--st700);background:var(--w50);
+    transition:all .2s;width:100%;display:block;
+}
+.form-control:focus,.form-select:focus {
+    border-color:var(--s400);box-shadow:0 0 0 3px rgba(122,166,88,.15);outline:none;
+}
+.form-control::placeholder{color:var(--st300);}
+.input-icon-wrap{position:relative;}
+.input-icon-wrap .form-control{padding-left:42px;}
+.input-icon-wrap i {
+    position:absolute;left:14px;top:50%;transform:translateY(-50%);
+    color:var(--s400);font-size:13px;z-index:2;pointer-events:none;
+}
+.btn-save {
+    background:linear-gradient(135deg,var(--s400),var(--s700));
+    border:none;border-radius:var(--radius-md);color:white;
+    padding:12px 28px;font-weight:700;font-size:14px;
+    font-family:'Outfit',sans-serif;transition:all .2s;
+    cursor:pointer;display:inline-flex;align-items:center;
+    justify-content:center;gap:7px;width:100%;
+}
+.btn-save:hover{opacity:.9;transform:translateY(-1px);box-shadow:var(--shadow-card);}
+.btn-outline {
+    background:transparent;border:2px solid var(--s200);
+    border-radius:var(--radius-md);color:var(--st500);
+    padding:11px 20px;font-weight:700;font-size:14px;
+    font-family:'Outfit',sans-serif;transition:all .2s;
+    text-decoration:none;display:inline-flex;align-items:center;gap:7px;
+    cursor:pointer;
+}
+.btn-outline:hover{background:var(--s50);border-color:var(--s300);color:var(--s700);}
+.alert {
+    border-radius:var(--radius-md);border:none;padding:13px 16px;
+    margin-bottom:20px;font-size:14px;font-weight:600;
+    display:flex;align-items:flex-start;gap:8px;
+}
+.alert-danger {background:var(--red-bg);color:var(--red-text);}
+.alert-warning{background:var(--amber-bg);color:var(--amber-text);}
+.alert-success{background:var(--green-bg);color:var(--green-text);}
+.info-note {
+    background:var(--s50);border:1px solid var(--s200);border-radius:var(--radius-md);
+    padding:13px 16px;margin-bottom:22px;font-size:13px;color:var(--s700);
+    display:flex;align-items:center;gap:8px;
+}
+.auth-footer-link{text-align:center;margin-top:22px;font-size:13.5px;color:var(--st500);}
+.auth-footer-link a{color:var(--s500);text-decoration:none;font-weight:700;transition:color .2s;}
+.auth-footer-link a:hover{color:var(--s800);text-decoration:underline;}
+.pw-hint{font-size:12px;color:var(--st300);margin-top:5px;display:flex;align-items:center;gap:5px;}
+.otp-row{display:flex;justify-content:center;gap:10px;margin:22px 0;}
+.otp-digit {
+    width:52px;height:62px;text-align:center;
+    border:2px solid var(--s100);border-radius:var(--radius-md);
+    font-size:22px;font-weight:800;color:var(--s800);
+    background:var(--w50);font-family:'Outfit',sans-serif;
+    transition:all .2s;outline:none;
+}
+.otp-digit:focus{border-color:var(--s400);box-shadow:0 0 0 3px rgba(122,166,88,.15);}
+@media(max-width:480px){
+    .auth-body{padding:24px 20px;}
+    .auth-header{padding:26px 20px;}
+    .otp-digit{width:42px;height:54px;font-size:18px;}
+}
+        .auth-card{max-width:460px;}
     </style>
 </head>
 <body>
-    <div class="reset-wrapper">
-        <div class="reset-container">
-            <div class="reset-header">
-                <div class="feature-icon floating">
-                    <i class="fas fa-key"></i>
-                </div>
-                <h2 class="brand-font mb-3">Reset Your Password</h2>
-                <p class="mb-0">We'll help you get back into your account</p>
-            </div>
-            
-            <div class="reset-body">
-                <?php echo $message; ?>
-                
-                <div class="instructions">
-                    <p>Enter your registered email address and we'll send you a verification code to reset your password.</p>
-                </div>
-                
-                <form method="POST" id="resetForm">
-                    <div class="mb-4">
-                        <label for="email" class="form-label">
-                            <i class="fas fa-envelope me-2"></i>Registered Email Address
-                        </label>
-                        <div class="input-group-icon">
-                            <i class="fas fa-envelope"></i>
-                            <input type="email" class="form-control" id="email" name="email" 
-                                   placeholder="Enter your email address" required
-                                   value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
-                        </div>
-                    </div>
-                    
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-paper-plane me-2"></i><span>Send Verification Code</span>
-                    </button>
-                </form>
-                
-                <div class="login-link">
-                    <p>Remember your password? 
-                        <a href="login.php">
-                            <i class="fas fa-sign-in-alt me-1"></i>Back to Login
-                        </a>
-                    </p>
+<div class="auth-card">
+    <div class="auth-header">
+        <div class="auth-brand">
+            <div class="auth-brand-icon"><i class="fas fa-leaf"></i></div>
+            <div class="auth-brand-text">SmartCare<span>Guardian</span></div>
+        </div>
+        <div class="auth-header-icon"><i class="fas fa-key"></i></div>
+        <h2>Reset Your Password</h2>
+        <p>Enter your email and we'll send you a verification code</p>
+    </div>
+    <div class="auth-body">
+        <?php echo $message; ?>
+        <form method="POST" id="resetForm">
+            <div class="mb-4">
+                <label class="form-label"><i class="fas fa-envelope" style="color:var(--s400);"></i>Registered Email Address</label>
+                <div class="input-icon-wrap">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" class="form-control" id="email" name="email" placeholder="Enter your email address" required
+                           value="<?php echo isset($_POST['email'])?htmlspecialchars($_POST['email']):''; ?>">
                 </div>
             </div>
+            <button type="submit" class="btn-save"><i class="fas fa-paper-plane"></i>Send Verification Code</button>
+        </form>
+        <div class="auth-footer-link">
+            Remember your password? <a href="login.php"><i class="fas fa-sign-in-alt me-1"></i>Back to Login</a>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        // Form validation and loading state
-        document.getElementById('resetForm').addEventListener('submit', function(e) {
-            const email = document.getElementById('email').value;
-            
-            // Basic validation
-            if (!email.includes('@') || !email.includes('.')) {
-                e.preventDefault();
-                alert('Please enter a valid email address.');
-                return;
-            }
-            
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Sending Code...</span>';
-            submitBtn.disabled = true;
-        });
-        
-        // Add floating animation to form elements on focus
-        document.querySelectorAll('.form-control').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.parentElement.parentElement.classList.add('floating');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.parentElement.parentElement.classList.remove('floating');
-            });
-        });
-        
-        // Auto-focus email field on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            document.getElementById('email').focus();
-        });
-    </script>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.getElementById('resetForm').addEventListener('submit',function(e){
+    const email=document.getElementById('email').value;
+    if(!email.includes('@')||!email.includes('.')){e.preventDefault();alert('Please enter a valid email address.');return;}
+    const btn=this.querySelector('button[type="submit"]');
+    btn.innerHTML='<i class="fas fa-spinner fa-spin"></i>Sending Code...';btn.disabled=true;
+});
+document.addEventListener('DOMContentLoaded',()=>document.getElementById('email').focus());
+</script>
 </body>
 </html>

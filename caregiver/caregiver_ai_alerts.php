@@ -504,9 +504,11 @@ h1,h2,h3,h4,h5,h6{font-family:'Cormorant Garamond',serif;color:var(--s800);margi
                 <div class="trend-wrap">
                     <div class="trend-lbl"><i class="fas fa-chart-line me-1"></i>14-Day Risk Trend</div>
                     <?php if($has_trend): ?>
-                        <canvas id="trend-<?= $rid ?>" height="55"
-                                data-trend="<?= htmlspecialchars($trend_data) ?>"
-                                style="width:100%;"></canvas>
+                        <div style="position:relative;height:55px;width:100%;">
+                            <canvas id="trend-<?= $rid ?>"
+                                    data-trend="<?= htmlspecialchars($trend_data) ?>"
+                                    style="width:100%;height:55px;"></canvas>
+                        </div>
                     <?php else: ?>
                         <div class="no-trend"><i class="fas fa-clock me-1"></i>Trend appears after 2+ days of data.</div>
                     <?php endif; ?>

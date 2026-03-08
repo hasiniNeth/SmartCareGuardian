@@ -2,7 +2,6 @@
 session_start();
 include 'db_connection.php';
 
-// Only admin
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     header("Location: login.php");
     exit();
@@ -10,34 +9,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 $message = "";
 
-// Fetch categories
 $categories = $conn->query("SELECT * FROM service_categories ORDER BY category_name");
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $title = trim($_POST['title']);
+    $title       = trim($_POST['title']);
     $description = trim($_POST['description']);
     $category_id = intval($_POST['category']);
 
-    // Upload image 
     $target_dir = "uploads/services/";
     if (!is_dir($target_dir)) mkdir($target_dir, 0777, true);
 
-    $image_name = time() . "_" . basename($_FILES["image"]["name"]);
+    $image_name  = time() . "_" . basename($_FILES["image"]["name"]);
     $target_file = $target_dir . $image_name;
     move_uploaded_file($_FILES["image"]["tmp_name"], $target_file);
 
-    // Insert into DB
     $stmt = $conn->prepare("INSERT INTO services (title, description, category_id, image_path) VALUES (?, ?, ?, ?)");
     $stmt->bind_param("ssis", $title, $description, $category_id, $target_file);
 
     if ($stmt->execute()) {
-        $message = "<div class='alert alert-success'>Service added successfully!</div>";
+        $message = "<div class='alert alert-success'><i class='fas fa-check-circle me-2'></i>Service added successfully!</div>";
     } else {
-        $message = "<div class='alert alert-danger'>Error adding service.</div>";
+        $message = "<div class='alert alert-danger'><i class='fas fa-exclamation-circle me-2'></i>Error adding service.</div>";
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,367 +41,361 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <title>Add Service - SmartCare Guardian</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --sage-green: #87A96B;
-            --mint-cream: #F0FFF0;
-            --seafoam: #9FE2BF;
-            --forest-mist: #B8E0D2;
-            --dusty-teal: #6D9B8E;
-            --deep-emerald: #4A766E;
-        }
-        
-        body {
-            font-family: 'Quicksand', sans-serif;
-            background: linear-gradient(135deg, var(--mint-cream) 0%, var(--forest-mist) 100%);
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-            overflow-x: hidden;
-        }
-        
-        body::before {
-            content: '';
-            position: fixed;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px);
-            background-size: 50px 50px;
-            animation: float 20s infinite linear;
-            z-index: 0;
-        }
-        
-        @keyframes float {
-            0% { transform: translate(0, 0) rotate(0deg); }
-            100% { transform: translate(-50px, -50px) rotate(360deg); }
-        }
-        
-        h1, h2, h3, h4, h5 {
-            font-family: 'Playfair Display', serif;
-            color: var(--deep-emerald);
-        }
-        
-        .brand-font {
-            font-family: 'Jost', sans-serif;
-            font-weight: 600;
+            --s50:  #F2F6EF;
+            --s100: #E3EDDB;
+            --s200: #C4D9B4;
+            --s300: #9DC07E;
+            --s400: #7AA658;
+            --s500: #5E8A40;
+            --s600: #4A6E30;
+            --s700: #365220;
+            --s800: #243816;
+            --w50:  #FDFAF5;
+            --w100: #F7F1E5;
+            --st300: #B8B0A4;
+            --st500: #7A7268;
+            --st700: #4A4540;
+            --green-bg:  #DDEFD8;
+            --green-text:#3A6830;
+            --red-bg:    #F5DADA;
+            --red-text:  #6A2020;
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 20px;
+            --shadow-card: 0 4px 24px rgba(36,56,22,.09), 0 1px 4px rgba(36,56,22,.06);
+            --shadow-lift: 0 8px 32px rgba(36,56,22,.13), 0 2px 8px rgba(36,56,22,.07);
         }
 
+        *, *::before, *::after { box-sizing: border-box; }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            font-size: 15px;
+            line-height: 1.6;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            background-color: var(--w50);
+            background-image:
+                radial-gradient(ellipse 80% 60% at 10% 10%, rgba(157,192,126,.12) 0%, transparent 55%),
+                radial-gradient(ellipse 60% 50% at 90% 90%, rgba(94,138,64,.08) 0%, transparent 50%);
+            color: var(--st700);
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5 {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--s800);
+            margin: 0;
+        }
+
+        /* ── Layout ── */
         .add-wrapper {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            position: relative;
-            z-index: 1;
         }
 
         .add-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lift);
             overflow: hidden;
-            max-width: 600px;
+            max-width: 580px;
             width: 100%;
-            border: 1px solid rgba(255, 255, 255, 0.2);
             margin: 20px 0;
+            border: 1px solid var(--s100);
         }
-        
+
+        /* ── Header ── */
         .add-header {
-            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-            color: white;
-            padding: 40px 30px;
+            background: linear-gradient(135deg, var(--s800) 0%, var(--s700) 45%, var(--s500) 100%);
+            padding: 38px 30px 32px;
             text-align: center;
             position: relative;
             overflow: hidden;
         }
-        
+
         .add-header::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="rgba(255,255,255,0.1)"><circle cx="20" cy="20" r="2"/><circle cx="80" cy="40" r="2"/><circle cx="40" cy="80" r="2"/><circle cx="70" cy="20" r="2"/></svg>');
-            animation: subtleMove 10s infinite linear;
+            inset: 0;
+            background-image:
+                radial-gradient(ellipse 100% 70% at 100% 50%, rgba(157,192,126,.15) 0%, transparent 60%);
+            pointer-events: none;
         }
-        
-        @keyframes subtleMove {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(10px, 10px); }
-        }
-        
-        .add-body {
-            padding: 40px 30px;
-        }
-        
-        .form-control {
-            border: 2px solid var(--forest-mist);
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-        }
-        
-        .form-control:focus {
-            border-color: var(--sage-green);
-            box-shadow: 0 0 0 0.2rem rgba(135, 169, 107, 0.25);
-            transform: translateY(-2px);
-        }
-        
-        .form-select {
-            border: 2px solid var(--forest-mist);
-            border-radius: 12px;
-            padding: 15px 20px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.8);
-        }
-        
-        .form-select:focus {
-            border-color: var(--sage-green);
-            box-shadow: 0 0 0 0.2rem rgba(135, 169, 107, 0.25);
-            transform: translateY(-2px);
-        }
-        
-        .form-label {
-            color: var(--deep-emerald);
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-        
-        .input-group-icon {
+
+        .brand-icon-wrap {
+            width: 58px;
+            height: 58px;
+            background: linear-gradient(135deg, var(--s300), var(--s500));
+            border-radius: var(--radius-md);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: white;
+            box-shadow: 0 4px 16px rgba(0,0,0,.25);
+            margin-bottom: 14px;
             position: relative;
         }
-        
-        .input-group-icon .form-control {
-            padding-left: 45px;
+
+        .add-header h2 {
+            color: white;
+            font-size: 26px;
+            font-weight: 600;
+            margin-bottom: 6px;
+            position: relative;
         }
-        
-        .input-group-icon i {
+
+        .add-header p {
+            color: rgba(255,255,255,.6);
+            font-size: 13px;
+            margin: 0;
+            position: relative;
+        }
+
+        /* ── Body ── */
+        .add-body { padding: 36px 32px 32px; }
+
+        /* ── Alerts ── */
+        .alert {
+            border-radius: var(--radius-md);
+            border: none;
+            padding: 13px 16px;
+            margin-bottom: 22px;
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .alert-success { background: var(--green-bg); color: var(--green-text); }
+        .alert-danger  { background: var(--red-bg);   color: var(--red-text);   }
+
+        /* ── Form labels ── */
+        .form-label {
+            color: var(--s800);
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-label i { color: var(--s400); }
+
+        /* ── Inputs ── */
+        .input-group-icon { position: relative; }
+
+        .input-group-icon .form-control { padding-left: 42px; }
+
+        .input-group-icon > i:first-of-type {
             position: absolute;
-            left: 15px;
+            left: 14px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--dusty-teal);
+            color: var(--s400);
+            font-size: 13px;
             z-index: 3;
+            pointer-events: none;
         }
-        
-        .btn-success {
-            background: linear-gradient(135deg, var(--sage-green), var(--dusty-teal));
-            border: none;
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+
+        .form-control,
+        .form-select {
+            border: 2px solid var(--s100);
+            border-radius: var(--radius-md);
+            padding: 11px 14px;
+            font-size: 14px;
+            font-family: 'Outfit', sans-serif;
+            background: var(--w50);
+            color: var(--st700);
+            transition: border-color .2s, box-shadow .2s;
             width: 100%;
-            position: relative;
-            overflow: hidden;
         }
-        
-        .btn-success::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, var(--dusty-teal), var(--sage-green));
-            transition: left 0.4s ease;
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: var(--s400);
+            box-shadow: 0 0 0 3px rgba(122,166,88,.15);
+            outline: none;
+            background: #ffffff;
         }
-        
-        .btn-success:hover::before {
-            left: 0;
-        }
-        
-        .btn-success span {
-            position: relative;
-            z-index: 2;
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(141, 182, 154, 0.4);
-        }
-        
-        .btn-secondary {
-            background: transparent;
-            border: 2px solid var(--dusty-teal);
-            color: var(--dusty-teal);
-            padding: 15px 30px;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 16px;
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            width: 100%;
-            margin-top: 10px;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
-        
-        .btn-secondary:hover {
-            background: var(--dusty-teal);
-            color: white;
-            transform: translateY(-3px);
-        }
-        
-        .alert {
-            border-radius: 12px;
-            border: none;
-            padding: 15px 20px;
-            margin-bottom: 20px;
-        }
-        
-        .alert-success {
-            background: linear-gradient(135deg, var(--seafoam), var(--sage-green));
-            color: white;
-        }
-        
-        .alert-danger {
-            background: linear-gradient(135deg, #ff6b6b, #ee5a52);
-            color: white;
-        }
-        
-        .feature-icon {
-            font-size: 3rem;
-            margin-bottom: 20px;
-            color: rgba(255, 255, 255, 0.9);
-        }
-        
-        .floating {
-            animation: floating 3s ease-in-out infinite;
-        }
-        
-        @keyframes floating {
-            0% { transform: translate(0, 0px); }
-            50% { transform: translate(0, -10px); }
-            100% { transform: translate(0, 0px); }
-        }
-        
+
+        .form-control::placeholder { color: var(--st300); }
+
+        textarea.form-control { resize: vertical; min-height: 110px; }
+
+        /* ── File upload ── */
         .file-input-wrapper {
             position: relative;
-            overflow: hidden;
-            display: inline-block;
+            display: block;
             width: 100%;
         }
-        
+
         .file-input-wrapper input[type=file] {
             position: absolute;
-            left: 0;
-            top: 0;
+            inset: 0;
             opacity: 0;
             width: 100%;
             height: 100%;
             cursor: pointer;
         }
-        
+
         .file-input-custom {
-            border: 2px dashed var(--forest-mist);
-            border-radius: 12px;
-            padding: 30px 20px;
+            border: 2px dashed var(--s200);
+            border-radius: var(--radius-md);
+            padding: 28px 20px;
             text-align: center;
-            background: rgba(255, 255, 255, 0.6);
-            transition: all 0.3s ease;
+            background: var(--s50);
+            transition: border-color .2s, background .2s;
             cursor: pointer;
         }
-        
+
         .file-input-custom:hover {
-            border-color: var(--sage-green);
-            background: rgba(255, 255, 255, 0.8);
+            border-color: var(--s400);
+            background: var(--w100);
         }
-        
+
         .file-input-custom i {
-            font-size: 2rem;
-            color: var(--dusty-teal);
-            margin-bottom: 10px;
+            font-size: 1.8rem;
+            color: var(--s400);
+            margin-bottom: 8px;
+            display: block;
         }
-        
+
         .file-input-text {
-            color: var(--deep-emerald);
-            font-weight: 600;
-        }
-        
-        .file-input-hint {
-            color: var(--dusty-teal);
+            color: var(--s700);
+            font-weight: 700;
             font-size: 14px;
-            margin-top: 5px;
         }
 
-        .button-group {
+        .file-input-hint {
+            color: var(--st300);
+            font-size: 12px;
+            margin-top: 3px;
+        }
+
+        #fileName {
+            font-size: 13px;
+            color: var(--s500);
+            font-weight: 600;
+            margin-top: 8px;
+            text-align: center;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--s100), transparent);
+            margin: 26px 0 22px;
+        }
+
+        /* ── Buttons ── */
+        .btn-save {
+            background: linear-gradient(135deg, var(--s400), var(--s700));
+            border: none;
+            padding: 11px 26px;
+            border-radius: var(--radius-sm);
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Outfit', sans-serif;
+            color: white;
+            cursor: pointer;
+            transition: opacity .2s, transform .2s, box-shadow .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-save:hover {
+            opacity: .92;
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-card);
+            color: white;
+        }
+
+        .btn-back {
+            background: transparent;
+            border: 2px solid var(--s200);
+            border-radius: var(--radius-sm);
+            padding: 11px 22px;
+            font-weight: 700;
+            font-size: 14px;
+            font-family: 'Outfit', sans-serif;
+            color: var(--st500);
+            text-decoration: none;
+            transition: background .2s, border-color .2s, color .2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-back:hover {
+            background: var(--s50);
+            border-color: var(--s300);
+            color: var(--s700);
+        }
+
+        .btn-row {
             display: flex;
-            flex-direction: column;
-            gap: 10px;
+            gap: 12px;
         }
 
-        /* Responsive adjustments */
+        /* ── Responsive ── */
         @media (max-height: 700px) {
-            .add-wrapper {
-                align-items: flex-start;
-                padding: 40px 0;
-            }
-            
-            .add-container {
-                margin: 20px;
-            }
+            .add-wrapper { align-items: flex-start; padding-top: 40px; }
         }
 
         @media (max-width: 480px) {
-            .add-body {
-                padding: 30px 20px;
-            }
-            
-            .add-header {
-                padding: 30px 20px;
-            }
-        }
-
-        @media (min-width: 768px) {
-            .button-group {
-                flex-direction: row;
-            }
-            
-            .button-group .btn {
-                width: 50%;
-            }
+            .add-body   { padding: 26px 20px; }
+            .add-header { padding: 28px 20px 24px; }
+            .btn-row    { flex-direction: column; }
         }
     </style>
 </head>
 <body>
     <div class="add-wrapper">
         <div class="add-container">
+
             <div class="add-header">
-                <div class="feature-icon floating">
-                    <i class="fas fa-plus-circle"></i>
+                <div class="brand-icon-wrap">
+                    <i class="fas fa-plus"></i>
                 </div>
-                <h2 class="brand-font mb-3">Add New Service</h2>
-                <p class="mb-0">Create a new healthcare service for residents</p>
+                <h2>Add New Service</h2>
+                <p>Create a new healthcare service for residents</p>
             </div>
-            
+
             <div class="add-body">
+
                 <?php echo $message; ?>
-                
+
                 <form method="POST" enctype="multipart/form-data" id="serviceForm">
+
                     <div class="mb-4">
                         <label class="form-label">
-                            <i class="fas fa-heading me-2"></i>Service Title
+                            <i class="fas fa-heading"></i>Service Title
                         </label>
                         <div class="input-group-icon">
                             <i class="fas fa-heading"></i>
-                            <input type="text" name="title" class="form-control" required 
+                            <input type="text" name="title" class="form-control" required
                                    placeholder="Enter service title">
                         </div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">
-                            <i class="fas fa-tags me-2"></i>Service Category
+                            <i class="fas fa-tags"></i>Service Category
                         </label>
                         <select name="category" class="form-select" required>
                             <option value="">Select Category</option>
@@ -420,36 +409,39 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
                     <div class="mb-4">
                         <label class="form-label">
-                            <i class="fas fa-file-alt me-2"></i>Service Description
+                            <i class="fas fa-file-lines"></i>Service Description
                         </label>
-                        <textarea name="description" class="form-control" rows="4" required 
+                        <textarea name="description" class="form-control" rows="4" required
                                   placeholder="Describe the service in detail"></textarea>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label">
-                            <i class="fas fa-image me-2"></i>Service Image
+                            <i class="fas fa-image"></i>Service Image
                         </label>
                         <div class="file-input-wrapper">
                             <div class="file-input-custom">
-                                <i class="fas fa-cloud-upload-alt"></i>
+                                <i class="fas fa-cloud-arrow-up"></i>
                                 <div class="file-input-text">Choose Service Image</div>
                                 <div class="file-input-hint">Click to upload or drag and drop</div>
-                                <div class="file-input-hint">PNG, JPG, JPEG up to 5MB</div>
+                                <div class="file-input-hint">PNG, JPG, JPEG — max 5 MB</div>
                             </div>
                             <input type="file" name="image" required accept="image/*">
                         </div>
-                        <div id="fileName" class="text-center mt-2 text-muted" style="font-size: 14px;"></div>
+                        <div id="fileName"></div>
                     </div>
 
-                    <div class="button-group">
-                        <button type="submit" class="btn-success">
-                            <i class="fas fa-plus me-2"></i><span>Add Service</span>
-                        </button>
-                        <a href="manage_services.php" class="btn btn-secondary">
-                            <i class="fas fa-arrow-left me-2"></i>Back to Services
+                    <div class="divider"></div>
+
+                    <div class="btn-row">
+                        <a href="manage_services.php" class="btn-back">
+                            <i class="fas fa-arrow-left"></i>Back to Services
                         </a>
+                        <button type="submit" class="btn-save">
+                            <i class="fas fa-plus"></i><span>Add Service</span>
+                        </button>
                     </div>
+
                 </form>
             </div>
         </div>
@@ -458,121 +450,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // File input display
-        document.querySelector('input[name="image"]').addEventListener('change', function(e) {
-            const fileName = this.files[0] ? this.files[0].name : 'No file chosen';
-            document.getElementById('fileName').textContent = `Selected: ${fileName}`;
-            
-            // Add visual feedback
-            const fileInputCustom = document.querySelector('.file-input-custom');
+        document.querySelector('input[name="image"]').addEventListener('change', function() {
+            const fileName = this.files[0] ? this.files[0].name : '';
+            document.getElementById('fileName').textContent = fileName ? `Selected: ${fileName}` : '';
+            const fc = document.querySelector('.file-input-custom');
             if (this.files[0]) {
-                fileInputCustom.style.borderColor = 'var(--sage-green)';
-                fileInputCustom.style.background = 'rgba(135, 169, 107, 0.1)';
+                fc.style.borderColor = 'var(--s400)';
+                fc.style.background  = 'var(--green-bg)';
             }
         });
 
-        // Form validation and loading state
+        // Form validation
         document.getElementById('serviceForm').addEventListener('submit', function(e) {
-            const title = document.querySelector('input[name="title"]').value;
-            const category = document.querySelector('select[name="category"]').value;
+            const title       = document.querySelector('input[name="title"]').value;
+            const category    = document.querySelector('select[name="category"]').value;
             const description = document.querySelector('textarea[name="description"]').value;
-            const image = document.querySelector('input[name="image"]').files[0];
-            
-            // Basic validation
-            if (title.trim().length < 2) {
-                e.preventDefault();
-                alert('Please enter a valid service title.');
-                return;
-            }
-            
-            if (!category) {
-                e.preventDefault();
-                alert('Please select a service category.');
-                return;
-            }
-            
-            if (description.trim().length < 10) {
-                e.preventDefault();
-                alert('Please enter a detailed description (at least 10 characters).');
-                return;
-            }
-            
-            if (!image) {
-                e.preventDefault();
-                alert('Please select a service image.');
-                return;
-            }
-            
-            // Check file size (5MB limit)
-            if (image.size > 5 * 1024 * 1024) {
-                e.preventDefault();
-                alert('Image size must be less than 5MB.');
-                return;
-            }
-            
-            // Show loading state
-            const submitBtn = this.querySelector('button[type="submit"]');
-            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i><span>Adding Service...</span>';
-            submitBtn.disabled = true;
+            const image       = document.querySelector('input[name="image"]').files[0];
+
+            if (title.trim().length < 2)        { e.preventDefault(); alert('Please enter a valid service title.'); return; }
+            if (!category)                       { e.preventDefault(); alert('Please select a service category.'); return; }
+            if (description.trim().length < 10)  { e.preventDefault(); alert('Please enter a detailed description (at least 10 characters).'); return; }
+            if (!image)                          { e.preventDefault(); alert('Please select a service image.'); return; }
+            if (image.size > 5 * 1024 * 1024)   { e.preventDefault(); alert('Image size must be less than 5MB.'); return; }
+
+            const btn = this.querySelector('button[type="submit"]');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i><span>Adding Service…</span>';
+            btn.disabled = true;
         });
-        
-        // Add floating animation to form elements on focus
-        document.querySelectorAll('.form-control, .form-select, .file-input-custom').forEach(input => {
-            input.addEventListener('focus', function() {
-                this.classList.add('floating');
-            });
-            
-            input.addEventListener('blur', function() {
-                this.classList.remove('floating');
-            });
-        });
-        
-        // Auto-focus first field on page load
+
+        // Auto-focus
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelector('input[name="title"]').focus();
         });
 
-        // Drag and drop functionality
-        const fileInput = document.querySelector('input[name="image"]');
+        // Drag and drop
+        const fileInput      = document.querySelector('input[name="image"]');
         const fileInputCustom = document.querySelector('.file-input-custom');
-        
-        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
-            fileInputCustom.addEventListener(eventName, preventDefaults, false);
+
+        ['dragenter','dragover','dragleave','drop'].forEach(ev =>
+            fileInputCustom.addEventListener(ev, e => { e.preventDefault(); e.stopPropagation(); })
+        );
+
+        ['dragenter','dragover'].forEach(ev =>
+            fileInputCustom.addEventListener(ev, () => {
+                fileInputCustom.style.borderColor = 'var(--s400)';
+                fileInputCustom.style.background  = 'var(--w100)';
+            })
+        );
+
+        ['dragleave','drop'].forEach(ev =>
+            fileInputCustom.addEventListener(ev, () => {
+                fileInputCustom.style.borderColor = '';
+                fileInputCustom.style.background  = '';
+            })
+        );
+
+        fileInputCustom.addEventListener('drop', function(e) {
+            fileInput.files = e.dataTransfer.files;
+            fileInput.dispatchEvent(new Event('change'));
         });
-        
-        function preventDefaults(e) {
-            e.preventDefault();
-            e.stopPropagation();
-        }
-        
-        ['dragenter', 'dragover'].forEach(eventName => {
-            fileInputCustom.addEventListener(eventName, highlight, false);
-        });
-        
-        ['dragleave', 'drop'].forEach(eventName => {
-            fileInputCustom.addEventListener(eventName, unhighlight, false);
-        });
-        
-        function highlight() {
-            fileInputCustom.style.borderColor = 'var(--sage-green)';
-            fileInputCustom.style.background = 'rgba(135, 169, 107, 0.2)';
-        }
-        
-        function unhighlight() {
-            fileInputCustom.style.borderColor = 'var(--forest-mist)';
-            fileInputCustom.style.background = 'rgba(255, 255, 255, 0.6)';
-        }
-        
-        fileInputCustom.addEventListener('drop', handleDrop, false);
-        
-        function handleDrop(e) {
-            const dt = e.dataTransfer;
-            const files = dt.files;
-            fileInput.files = files;
-            
-            // Trigger change event
-            const event = new Event('change');
-            fileInput.dispatchEvent(event);
-        }
     </script>
 </body>
 </html>

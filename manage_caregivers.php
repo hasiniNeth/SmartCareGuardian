@@ -314,13 +314,13 @@ if (!empty($params)) {
                                         data-id="<?= $row['user_id']; ?>"
                                         data-name="<?= htmlspecialchars($row['full_name']); ?>"
                                         data-email="<?= htmlspecialchars($row['email']); ?>"
-                                        data-phone="<?= htmlspecialchars($row['phone']); ?>"
-                                        data-gender="<?= htmlspecialchars($row['gender']); ?>"
-                                        data-dob="<?= htmlspecialchars($row['dob']); ?>"
-                                        data-experience="<?= $row['experience_years']; ?>"
-                                        data-address="<?= htmlspecialchars($row['address']); ?>"
-                                        data-skills="<?= htmlspecialchars($row['skills']); ?>"
-                                        data-created="<?= htmlspecialchars($row['created_at']); ?>"
+                                        data-phone="<?= htmlspecialchars($row['phone'] ?? ''); ?>"
+                                        data-gender="<?= htmlspecialchars($row['gender'] ?? ''); ?>"
+                                        data-dob="<?= htmlspecialchars($row['dob'] ?? ''); ?>"
+                                        data-experience="<?= $row['experience_years'] ?? 0; ?>"
+                                        data-address="<?= htmlspecialchars($row['address'] ?? ''); ?>"
+                                        data-skills="<?= htmlspecialchars($row['skills'] ?? ''); ?>"
+                                        data-created="<?= htmlspecialchars($row['created_at'] ?? ''); ?>"
                                         data-status="<?= htmlspecialchars($row['status']); ?>">
                                         <i class="fas fa-eye"></i>View
                                     </button>

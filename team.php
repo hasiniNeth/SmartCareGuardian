@@ -379,6 +379,14 @@
             color: var(--seafoam);
         }
 
+        /* Footer Brand Text Fix */
+        .footer-brand {
+            color: white !important;
+            font-family: 'Playfair Display', serif;
+            font-weight: 700;
+            font-size: 1.5rem;
+        }
+
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .display-3 {
@@ -884,8 +892,8 @@
     <footer class="footer py-5">
         <div class="container">
             <div class="row align-items-center">
-                <div class="col-lg-4 text-center text-lg-start mb-4 mb-lg-0" data-aos="fade-right">
-                    <h4 class="brand-font mb-3">
+                <div class="col-lg-4 text-center text-lg-start mb-4 mb-lg-0">
+                    <h4 class="footer-brand mb-3">
                         <i class="fas fa-leaf me-2"></i>SUBODHA AYURVEDA
                     </h4>
                     <p class="mb-0">Ancient Wisdom, Modern Care, Eternal Compassion</p>
@@ -930,8 +938,8 @@
                 </div>
             </div>
             <hr class="my-4" style="background: rgba(255,255,255,0.3);">
-            <div class="text-center" data-aos="fade-up">
-                <p class="mb-0">&copy; 2024 Subodha Ayurveda Hospital (Pvt) Ltd. All rights reserved.</p>
+            <div class="text-center">
+                <p class="mb-0">&copy; 2026 Subodha Ayurveda Hospital (Pvt) Ltd. All rights reserved.</p>
             </div>
         </div>
     </footer>

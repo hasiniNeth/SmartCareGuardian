@@ -2,6 +2,8 @@
 session_start();
 include '../db_connection.php';
 
+date_default_timezone_set('Asia/Colombo');
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'resident') {
     header("Location: ../login.php");
     exit();
@@ -1103,10 +1105,6 @@ $ua->close();
         <a href="resident_dashboard.php" class="active"><i class="fa-solid fa-gauge-high"></i> Dashboard</a>
         <a href="elder_profile.php"><i class="fa-solid fa-user-pen"></i> My Profile</a>
         <a href="elder_health.php"><i class="fa-solid fa-heart-pulse"></i> My Health Data</a>
-        <a href="resident_alerts.php">
-            <i class="fa-solid fa-bell"></i> My Health Alerts
-            <?php if ($unresolved_count > 0): ?><span class="sb-badge"><?= $unresolved_count ?></span><?php endif; ?>
-        </a>
         <a href="elder_schedule.php"><i class="fa-solid fa-calendar-check"></i> Daily Schedule</a>
         <a href="elder_medications.php"><i class="fa-solid fa-pills"></i> My Medications</a>
         <a href="elder_appointments.php"><i class="fa-solid fa-calendar-days"></i> Appointments</a>
