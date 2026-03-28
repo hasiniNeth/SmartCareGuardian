@@ -16,7 +16,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Quicksand:wght@300;400;500;600&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
-    <link href="assets/css/style2.css" rel="stylesheet">
+    <link href="assets/css/style3.css" rel="stylesheet">
 </head>
 <body>
     <!-- Navigation -->
@@ -37,7 +37,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
                     <li class="nav-item"><a class="nav-link" href="#team">Our Team</a></li>
                     <li class="nav-item"><a class="nav-link" href="#contact">Contact Us</a></li>
                     <li class="nav-item">
-                        <a class="btn btn-primary ms-3" href="login.php">
+                        <a class="btn btn-primary ms-4" href="login.php">
                             <i class="fas fa-sign-in-alt me-2"></i><span>SmartCare Login</span>
                         </a>
                     </li>
@@ -238,8 +238,8 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
             <div class="row justify-content-center">
                 <div class="col-lg-10">
                     <div class="contact-form" data-aos="zoom-in">
-                        <div class="row align-items-stretch">
-                            <div class="col-md-4 mb-4 mb-md-0">
+                        <div class="row align-items-stretch text-center">
+                            <div class="col-md-4 col-12 mb-4 mb-md-0"> 
                                 <div class="contact-info h-100 d-flex flex-column justify-content-center">
                                     <i class="fas fa-map-marker-alt contact-icon"></i>
                                     <h6 class="brand-font mb-3">Location</h6>
@@ -250,7 +250,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
                                     </p>
                                 </div>
                             </div>
-                            <div class="col-md-4 mb-4 mb-md-0">
+                            <div class="col-md-4 col-12 mb-4 mb-md-0"> 
                                 <div class="contact-info h-100 d-flex flex-column justify-content-center">
                                     <i class="fas fa-phone contact-icon"></i>
                                     <h6 class="brand-font mb-3">Phone</h6>
@@ -261,7 +261,7 @@ $services = $conn->query("SELECT * FROM services ORDER BY service_id DESC LIMIT 
                                     </p>
                                 </div>
                             </div>
-                            <div class="col-md-4">
+                            <div class="col-md-4 col-12">
                                 <div class="contact-info h-100 d-flex flex-column justify-content-center">
                                     <i class="fas fa-envelope contact-icon"></i>
                                     <h6 class="brand-font mb-3">Email</h6>

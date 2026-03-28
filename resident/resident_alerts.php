@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'resident') {
 }
 include '../db_connection.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartCareGuardian/includes/ai_service.php';
+require_once '../risk_context_helper.php'; 
 
 $user_id = $_SESSION['user_id'];
 
@@ -498,6 +499,14 @@ h1,h2,h3,h4,h5{font-family:'Cormorant Garamond',serif;color:var(--s800);margin:0
                                 </div>
                             <?php endif; ?>
                             <div class="tip-box"><i class="fas fa-lightbulb me-1"></i><?= htmlspecialchars($tips[$level]) ?></div>
+
+                            <!-- Risk context badge (plain English for elder) -->
+                            <?php
+                                $ctx_alerts = $ai_result['alerts']['alerts'] ?? [];
+                                $ctx_level  = $ai_result['prediction']['risk_level'] ?? 'low';
+                                $context    = getRiskContext($ctx_alerts, $ctx_level);
+                                echo renderContextBadge($context, 'elder');
+                            ?>
                         </div>
                     </div>
 

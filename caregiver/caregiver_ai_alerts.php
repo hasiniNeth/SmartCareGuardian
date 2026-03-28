@@ -2,6 +2,7 @@
 session_start();
 include '../db_connection.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartCareGuardian/includes/ai_service.php';
+require_once '../risk_context_helper.php'; 
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'caregiver') {
     header("Location: login.php"); exit();
@@ -497,6 +498,13 @@ h1,h2,h3,h4,h5,h6{font-family:'Cormorant Garamond',serif;color:var(--s800);margi
                             <?= htmlspecialchars($al['vital_sign']) ?> <?= $al['status'] ?> (<?= $al['value'].' '.$al['unit'] ?>)
                         </span>
                     <?php endforeach; ?>
+                </div>
+                <?php endif; ?>
+
+                <!-- Risk context badge -->
+                <?php if($r['last_log']): $context = getRiskContext($ai_alerts, $level); ?>
+                <div style="padding:0 18px 10px;">
+                    <?= renderContextBadge($context, 'admin') ?>
                 </div>
                 <?php endif; ?>
 

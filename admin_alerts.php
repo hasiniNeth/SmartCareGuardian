@@ -5,6 +5,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 include 'db_connection.php';
 require_once $_SERVER['DOCUMENT_ROOT'] . '/SmartCareGuardian/includes/ai_service.php';
+require_once 'risk_context_helper.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['resolve_alert'])) {
     $stmt = $conn->prepare("UPDATE alerts SET resolved=1 WHERE alert_id=?");
@@ -509,6 +510,14 @@ h1,h2,h3,h4,h5,h6{font-family:'Cormorant Garamond',serif;color:var(--s800);margi
                                 <i class="fas fa-user me-1"></i>View Full Profile
                             </button>
                         </div>
+                    </div>
+
+                    <?php
+                        $context = getRiskContext($ai_alerts, $level);
+                    ?>
+                    <div style="margin:10px 0 4px;">
+                        <?= renderContextBadge($context, 'admin') ?>
+                        <?= renderFlaggedVitals($context['flagged_vitals']) ?>
                     </div>
 
                     <div class="trend-wrap mt-3">
