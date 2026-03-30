@@ -130,6 +130,3 @@ def suggest_match():
     except Exception as e:
         return jsonify({"success": False, "error": str(e)}), 500
 
-# In your app.py add:
-# from ai_routes_match import match_bp
-# app.register_blueprint(match_bp)

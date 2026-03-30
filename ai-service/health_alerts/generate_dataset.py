@@ -1,11 +1,6 @@
 # ============================================================
 # SmartCare Guardian — FIXED Synthetic Health Dataset Generator
 #
-# FIXES:
-#   - Replaced simple threshold-based risk labels
-#   - Uses scoring system for realistic risk calculation
-#   - Adds medical uncertainty and individual variation
-#   - Expected accuracy: 75-85% (realistic for healthcare AI)
 # ============================================================
 
 import pandas as pd
@@ -387,4 +382,3 @@ print("\nExpected model performance with this dataset:")
 print("  Accuracy:  75-85% (realistic for healthcare AI)")
 print("  AUC-ROC:   80-90% (realistic for healthcare AI)")
 print("  Recall:    70-85% (good for catching risk cases)")
-print("\nNow run: train_models.ipynb or train_models_simplified.ipynb")

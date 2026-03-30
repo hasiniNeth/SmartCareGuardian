@@ -1,32 +1,7 @@
 <?php
 /**
  * SmartCare Guardian — AI Suggestions Display
- * ============================================
- * Add this snippet to your caregiver resident view page.
- * 
- * HOW TO USE:
- * 1. At the top of your caregiver resident page, add:
- *    require_once '../ai-service/RoutineSuggestionAI.php';
- *
- * 2. After your DB connection ($conn), add:
- *    $ai = new RoutineSuggestionAI($conn);
- *    $aiResult = $ai->getSuggestionsForResident($residentId);
- *
- * 3. Then paste the HTML section below where you want the suggestions to appear.
  */
-
-// ── EXAMPLE: paste this at the top of your resident detail page ──────────────
-
-/*
-require_once '../ai-service/RoutineSuggestionAI.php';
-
-$residentId = (int)$_GET['id'];   // or however you get the resident ID
-
-$ai       = new RoutineSuggestionAI($conn);
-$aiResult = $ai->getSuggestionsForResident($residentId);
-
-$suggestions = $aiResult['suggestions'] ?? [];
-*/
 
 // ── ICONS per routine type ────────────────────────────────────────────────────
 $icons = [
